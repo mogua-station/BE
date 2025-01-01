@@ -31,6 +31,7 @@ jobs:
     # Create application.properties file
     - name: Create application.properties
       run: |
+        mkdir -p src/main/resources
         echo "spring.application.name=study-group" > src/main/resources/application.properties
         echo "kakao.apikey=815edb7e2bc243e280f527ca4de5117c" >> src/main/resources/application.properties
         echo "kakao.redirect-uri=http://localhost:8080/user/kakao/callback" >> src/main/resources/application.properties
