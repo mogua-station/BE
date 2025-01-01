@@ -44,12 +44,6 @@ jobs:
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: trelloServer
-        path: build/libs/trelloServer-0.0.1-SNAPSHOT.jar
-
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -61,18 +55,18 @@ jobs:
         name: trelloServer
         path: build/libs/
 
+    - name: Install SSH client
+      run: sudo apt-get install openssh-client
+
     - name: Deploy to EC2
       run: |
         echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
         chmod 600 private_key.pem
 
-        # Copy the JAR file to EC2
+        # JAR 파일을 EC2로 복사
         scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/trelloServer-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/trelloServer.jar
 
-        # Check if the process is running, stop and remove it if necessary
-        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "pgrep java && kill -9 \$(pgrep java) || echo 'No Java process found';"
-
-        # Run the new JAR file
-        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "nohup java -jar /home/${{ secrets.EC2_USERNAME }}/trelloServer.jar > app.log 2>&1 &"
+        # 기존 Java 프로세스 종료 후 새로운 프로세스 실행
+        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "pgrep java | xargs kill -9; nohup java -jar /home/${{ secrets.EC2_USERNAME }}/trelloServer.jar > app.log 2>&1 &"
 
         rm -f private_key.pem
