@@ -1,4 +1,4 @@
-name: Java CI with Gradle and Docker
+name: Java CI with Gradle
 
 on:
   push:
@@ -24,11 +24,9 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
-    # gradle wrapper 파일에 실행 권한을 부여
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    # Create application.properties file
     - name: Create application.properties
       run: |
         mkdir -p src/main/resources
@@ -43,36 +41,38 @@ jobs:
         echo "spring.jpa.hibernate.ddl-auto=update" >> src/main/resources/application.properties
         echo "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect" >> src/main/resources/application.properties
 
-    # Gradle 빌드 실행
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
-    # Docker 이미지 빌드
-    - name: Build Docker image
-      run: |
-        docker build -t your-dockerhub-username/trelloServer:${{ github.sha }} .
-
-    # Docker Hub에 푸시 (Docker Hub에 로그인 필요)
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Push Docker image to Docker Hub
-      run: |
-        docker push your-dockerhub-username/trelloServer:${{ github.sha }}
+        name: trelloServer
+        path: build/libs/trelloServer-0.0.1-SNAPSHOT.jar
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Deploy Docker image to EC2
+    - name: Download build artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: trelloServer
+        path: build/libs/
+
+    - name: Deploy to EC2
       run: |
-        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
-          docker pull your-dockerhub-username/trelloServer:${{ github.sha }}
-          docker stop trelloServer || true
-          docker rm trelloServer || true
-          docker run -d --name trelloServer -p 8080:8080 your-dockerhub-username/trelloServer:${{ github.sha }}
-        EOF
+        echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+        chmod 600 private_key.pem
+
+        # Copy the JAR file to EC2
+        scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/trelloServer-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/trelloServer.jar
+
+        # Check if the process is running, stop and remove it if necessary
+        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "pgrep java && kill -9 \$(pgrep java) || echo 'No Java process found';"
+
+        # Run the new JAR file
+        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "nohup java -jar /home/${{ secrets.EC2_USERNAME }}/trelloServer.jar > app.log 2>&1 &"
+
+        rm -f private_key.pem
