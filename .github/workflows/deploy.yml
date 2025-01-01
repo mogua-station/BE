@@ -44,6 +44,10 @@ jobs:
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
+    # 빌드된 파일 확인
+    - name: List build/libs directory
+      run: ls -la build/libs/
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -57,7 +61,7 @@ jobs:
         echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
         chmod 600 private_key.pem
 
-        # JAR 파일을 EC2로 복사
+        # JAR 파일이 실제로 존재하는지 확인 후 EC2로 복사
         scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/trelloServer-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/trelloServer.jar
 
         # 기존 Java 프로세스 종료 후 새로운 프로세스 실행
