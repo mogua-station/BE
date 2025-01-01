@@ -24,11 +24,9 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
-    # gradle wrapper 파일에 실행 권한을 부여
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    # Create application.properties file
     - name: Create application.properties
       run: |
         mkdir -p src/main/resources
@@ -43,16 +41,12 @@ jobs:
         echo "spring.jpa.hibernate.ddl-auto=update" >> src/main/resources/application.properties
         echo "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect" >> src/main/resources/application.properties
 
-    # Gradle 빌드 실행
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
-    # 빌드된 JAR 파일을 아티팩트로 업로드
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: trelloServer
-        path: build/libs/trelloServer-0.0.1-SNAPSHOT.jar
+    # 빌드된 파일 확인
+    - name: List build/libs directory
+      run: ls -la build/libs/
 
   dependency-submission:
     runs-on: ubuntu-latest
@@ -68,29 +62,25 @@ jobs:
         distribution: 'temurin'
 
     - name: Generate and submit dependency graph
-      uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
-
+      uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # 
+      
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Download build artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: trelloServer
-        path: build/libs/
+    - name: Install SSH client
+      run: sudo apt-get install openssh-client
 
-    # EC2에 배포
     - name: Deploy to EC2
       run: |
         echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
         chmod 600 private_key.pem
-
+    
         # JAR 파일을 EC2로 복사
-        scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/trelloServer-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/trelloServer.jar
-
+        scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/trelloServer-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trelloServer.jar
+    
         # 기존 Java 프로세스 종료 후 새로운 프로세스 실행
-        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "pgrep java | xargs kill -9; nohup java -jar /home/${{ secrets.EC2_USERNAME }}/trelloServer.jar > app.log 2>&1 &"
-
+        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "pgrep java | xargs kill -9; nohup java -jar /home/ubuntu/trelloServer.jar > app.log 2>&1 &"
+    
         rm -f private_key.pem
