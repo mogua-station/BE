@@ -63,7 +63,7 @@ jobs:
 
     - name: Deploy JAR to EC2
       run: |
-        scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/trelloServer-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trelloServer.jar
+        scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/*.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trelloServer.jar
 
     - name: Restart application on EC2
       run: |
@@ -77,4 +77,3 @@ jobs:
 
     - name: Clean up
       run: rm -f private_key.pem
-
