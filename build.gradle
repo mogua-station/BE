@@ -45,3 +45,8 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+tasks.named('bootJar') {
+	archiveBaseName = 'study-group'
+	archiveVersion = '0.0.1-SNAPSHOT'
+}
