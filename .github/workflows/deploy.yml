@@ -48,39 +48,33 @@ jobs:
     - name: List build/libs directory
       run: ls -la build/libs/
 
-  dependency-submission:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-
-    - name: Generate and submit dependency graph
-      uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # 
-      
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
     - name: Install SSH client
-      run: sudo apt-get install openssh-client
+      run: sudo apt-get update && sudo apt-get install -y openssh-client
 
-    - name: Deploy to EC2
+    - name: Configure SSH key
       run: |
         echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
         chmod 600 private_key.pem
-    
-        # JAR 파일을 EC2로 복사
+
+    - name: Deploy JAR to EC2
+      run: |
         scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/trelloServer-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trelloServer.jar
-    
-        # 기존 Java 프로세스 종료 후 새로운 프로세스 실행
-        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "pgrep java | xargs kill -9; nohup java -jar /home/ubuntu/trelloServer.jar > app.log 2>&1 &"
-    
-        rm -f private_key.pem
+
+    - name: Restart application on EC2
+      run: |
+        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << EOF
+        # Kill existing Java process
+        pkill -f 'trelloServer.jar' || echo "No existing process found."
+
+        # Run the new JAR file
+        nohup java -jar /home/ubuntu/trelloServer.jar > /home/ubuntu/app.log 2>&1 &
+        EOF
+
+    - name: Clean up
+      run: rm -f private_key.pem
+
