@@ -61,7 +61,7 @@ jobs:
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_PRIVATE_KEY }}
+        key: ${{ secrets.EC2_SSH_KEY }}
         script_stop: true
         script: |
           # 기존 서버 중지 및 새 JAR 파일 실행
