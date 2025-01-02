@@ -63,8 +63,8 @@ jobs:
 
     - name: Deploy JAR to EC2
       run: |
-        scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/*.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/study-group.jar
-
+         scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/study-group-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/ubuntu/study-group.jar
+    
     - name: Restart application on EC2
       run: |
         ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << EOF
