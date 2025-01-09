@@ -40,8 +40,12 @@ jobs:
         echo "spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver" >> src/main/resources/application.properties
         echo "spring.jpa.hibernate.ddl-auto=create-drop" >> src/main/resources/application.properties
         echo "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect" >> src/main/resources/application.properties
-        
-        # server 설정 추가
+        # AWS S3 설정
+        echo "cloud.aws.credentials.access-key=${{ secrets.AWS_ACCESS_KEY }}" >> src/main/resources/application.properties
+        echo "cloud.aws.credentials.secret-key=${{ secrets.AWS_SECRET_KEY }}" >> src/main/resources/application.properties
+        echo "cloud.aws.region.static=ap-southeast-2" >> src/main/resources/application.properties
+        echo "cloud.aws.s3.bucket=fesi6" >> src/main/resources/application.properties
+        # server 설정
         echo "server.address=0.0.0.0" >> src/main/resources/application.properties
         echo "server.port=8080" >> src/main/resources/application.properties
 
