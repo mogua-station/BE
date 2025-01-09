@@ -34,12 +34,10 @@ public class JwtTokenProvider {
     }
 
     public Long getUserIdFromToken(String token) {
-        return Long.valueOf(Jwts.parser()
+        return Jwts.parser()
                 .setSigningKey(SECRET_KEY.getBytes())
                 .parseClaimsJws(token)
                 .getBody()
-                .get("userId", String.class));
+                .get("userId", Long.class);
     }
-
-
 }
