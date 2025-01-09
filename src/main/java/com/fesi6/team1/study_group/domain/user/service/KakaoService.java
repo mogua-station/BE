@@ -1,6 +1,6 @@
 package com.fesi6.team1.study_group.domain.user.service;
 
-import com.fesi6.team1.study_group.domain.user.dto.KakaoUserInfoDto;
+import com.fesi6.team1.study_group.domain.user.dto.KakaoUserInfoDTO;
 import com.nimbusds.jose.shaded.gson.JsonElement;
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
@@ -78,8 +78,8 @@ public class KakaoService {
         return accessToken;
     }
 
-    public KakaoUserInfoDto getKakaoUserInfo(String accessToken) {
-        KakaoUserInfoDto userInfoDto = null;
+    public KakaoUserInfoDTO getKakaoUserInfo(String accessToken) {
+        KakaoUserInfoDTO userInfoDto = null;
         String reqUrl = "https://kapi.kakao.com/v2/user/me";
 
         try {
@@ -116,7 +116,7 @@ public class KakaoService {
                     ? profile.get("profile_image_url").getAsString()
                     : null;
 
-            userInfoDto = new KakaoUserInfoDto(socialId, email, nickname, profileImageUrl);
+            userInfoDto = new KakaoUserInfoDTO(socialId, email, nickname, profileImageUrl);
         } catch (Exception e) {
             e.printStackTrace();
         }
