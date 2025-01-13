@@ -16,8 +16,9 @@ public class UserProfileResponseDTO {
     private final QualificationStatus qualificationStatus;
     private final String bio;
     private final List<UserTag> userTagList;
+    private final boolean isOwnId;
 
-    public UserProfileResponseDTO(User user) {
+    public UserProfileResponseDTO(User user,Long myId) {
 
         this.email = user.getEmail();
         this.nickname = user.getNickname();
@@ -25,5 +26,6 @@ public class UserProfileResponseDTO {
         this.qualificationStatus = user.getQualificationStatus();
         this.bio = user.getBio();
         this.userTagList = user.getTags();
+        this.isOwnId = (user.getId().equals(myId));
     }
 }

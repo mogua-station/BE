@@ -127,8 +127,8 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserProfileResponseDTO findUserProfile(Long userId) {
-        return new UserProfileResponseDTO(findById(userId));
+    public UserProfileResponseDTO findUserProfile(Long userId, Long myId) {
+        return new UserProfileResponseDTO(findById(userId),myId);
     }
 
     public User findById(Long userId) {
@@ -137,19 +137,16 @@ public class UserService {
     }
 
     public void updateMyProfile(Long userId, MultipartFile file, UpdateProfileRequestDTO request) throws IOException {
-        // 사용자 조회
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        // 닉네임 업데이트
         Optional.ofNullable(request.getNickname())
                 .ifPresent(user::setNickname);
 
-        // 자기소개 업데이트
         Optional.ofNullable(request.getBio())
                 .ifPresent(user::setBio);
 
-        // 태그 업데이트
         Optional.ofNullable(request.getUserTagList())
                 .ifPresent(tags -> {
                     user.getTags().clear();

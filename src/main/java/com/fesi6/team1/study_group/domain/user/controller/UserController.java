@@ -77,17 +77,6 @@ public class UserController {
 
     /**
      *
-     * 내 프로필 조회
-     *
-     **/
-    @GetMapping("/profile/me")
-    public ResponseEntity<ApiResponse<UserProfileResponseDTO>> findMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long userId = userDetails.getUserId();
-        return ResponseEntity.ok().body(successResponse(userService.findUserProfile(userId)));
-    }
-
-    /**
-     *
      * 내 프로필 수정
      *
      **/
@@ -120,9 +109,10 @@ public class UserController {
      **/
     @GetMapping("/profile/{id}")
     public ResponseEntity<ApiResponse<UserProfileResponseDTO>> findUserProfile(
-            @PathVariable Long id) {
-
-        return ResponseEntity.ok().body(successResponse(userService.findUserProfile(id)));
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long myId = userDetails.getUserId();
+        return ResponseEntity.ok().body(successResponse(userService.findUserProfile(id, myId)));
     }
 
     /**
