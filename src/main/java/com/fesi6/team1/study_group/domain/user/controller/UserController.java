@@ -125,7 +125,6 @@ public class UserController {
         return ResponseEntity.ok().body(successResponse(userService.findUserProfile(id)));
     }
 
-
     /**
      *
      * 내 모임 조회

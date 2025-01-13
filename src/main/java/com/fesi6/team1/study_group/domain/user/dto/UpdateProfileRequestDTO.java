@@ -1,20 +1,21 @@
 package com.fesi6.team1.study_group.domain.user.dto;
 
-import com.fesi6.team1.study_group.domain.user.entity.LoginType;
-import com.fesi6.team1.study_group.domain.user.entity.UserTag;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
 @Getter
+@Setter
+@NoArgsConstructor
 public class UpdateProfileRequestDTO {
 
-    private final String nickname;
-    private final String bio;
-    private final List<String> userTagList;
+    private String nickname;
+    private String bio;
+    private List<String> userTagList;
 
-    public UpdateProfileRequestDTO(String nickname,String bio, List<String> userTagList) {
-
+    public UpdateProfileRequestDTO(String nickname, String bio, List<String> userTagList) {
         this.nickname = nickname;
         this.bio = bio;
         this.userTagList = userTagList;

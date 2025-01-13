@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -136,49 +137,61 @@ public class UserService {
     }
 
     public void updateMyProfile(Long userId, MultipartFile file, UpdateProfileRequestDTO request) throws IOException {
+        // 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        if (request.getNickname() != null) {
-            user.setNickname(request.getNickname());
-        }
+        // 닉네임 업데이트
+        Optional.ofNullable(request.getNickname())
+                .ifPresent(user::setNickname);
 
-        if (request.getBio() != null) {
-            user.setBio(request.getBio());
-        }
+        // 자기소개 업데이트
+        Optional.ofNullable(request.getBio())
+                .ifPresent(user::setBio);
 
-        if (request.getUserTagList() != null) {
-            // 기존 태그 삭제 후 새 태그 추가
-            user.getTags().clear();
-            List<UserTag> newTags = request.getUserTagList().stream()
-                    .map(tag -> {
-                        UserTag userTag = new UserTag();
-                        userTag.setUser(user);
-                        userTag.setTag(tag);
-                        return userTag;
-                    })
-                    .collect(Collectors.toList());
-            user.getTags().addAll(newTags);
-        }
+        // 태그 업데이트
+        Optional.ofNullable(request.getUserTagList())
+                .ifPresent(tags -> {
+                    user.getTags().clear();
+                    List<UserTag> newTags = tags.stream()
+                            .map(tag -> {
+                                UserTag userTag = new UserTag();
+                                userTag.setUser(user);
+                                userTag.setTag(tag);
+                                return userTag;
+                            })
+                            .collect(Collectors.toList());
+                    user.getTags().addAll(newTags);
+                });
 
+        // 프로필 이미지 업데이트
         if (file != null) {
-            String path = "profileImage";
-            String currentProfileImg = user.getProfileImg();
-            String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/profileImage/";
-
-            boolean isDefaultImage = currentProfileImg == null || currentProfileImg.startsWith(basePath + "defaultProfileImages/");
-
-            if (!isDefaultImage && currentProfileImg != null) {
-                String oldFilePath = currentProfileImg.replace(basePath, "");
-                s3FileService.deleteFile(oldFilePath);
-            }
-
-            String uploadedFileName = s3FileService.uploadFile(file, path);
-            user.setProfileImg(basePath + uploadedFileName);
+            updateProfileImage(user, file);
         }
 
+        // 사용자 정보 저장
         userRepository.save(user);
     }
+
+    private void updateProfileImage(User user, MultipartFile file) throws IOException {
+        String path = "profileImage";
+        String currentProfileImg = user.getProfileImg();
+        String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/profileImage/";
+
+        // 기본 이미지 여부 확인
+        boolean isDefaultImage = currentProfileImg == null || currentProfileImg.startsWith(basePath + "defaultProfileImages/");
+
+        // 기존 이미지 삭제
+        if (!isDefaultImage && currentProfileImg != null) {
+            String oldFilePath = currentProfileImg.replace(basePath, "");
+            s3FileService.deleteFile(oldFilePath);
+        }
+
+        // 새 이미지 업로드 및 경로 설정
+        String uploadedFileName = s3FileService.uploadFile(file, path);
+        user.setProfileImg(basePath + uploadedFileName);
+    }
+
 
 
     public List<MyMeetupResponseDTO> getMyMeetupsByType(Long userId, String type) {
