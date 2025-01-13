@@ -41,7 +41,7 @@ jobs:
         echo "spring.datasource.username=${{ secrets.MYSQL_USERNAME }}" >> src/main/resources/application.properties
         echo "spring.datasource.password=${{ secrets.MYSQL_PASSWORD }}" >> src/main/resources/application.properties
         echo "spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver" >> src/main/resources/application.properties
-        echo "spring.jpa.hibernate.ddl-auto=create-drop" >> src/main/resources/application.properties
+        echo "spring.jpa.hibernate.ddl-auto=update" >> src/main/resources/application.properties
         echo "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect" >> src/main/resources/application.properties
         # AWS S3 설정
         echo "cloud.aws.credentials.access-key=${{ secrets.AWS_ACCESS_KEY }}" >> src/main/resources/application.properties
