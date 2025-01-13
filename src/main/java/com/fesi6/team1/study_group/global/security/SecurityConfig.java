@@ -21,8 +21,8 @@ public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
             "/user/kakao/**",// 카카오 로그인 콜백 URL
-            "/user/sign",
-            "/user/login",
+            "/user/sign-up",
+            "/user/sign-in",
     };
 
     @Bean

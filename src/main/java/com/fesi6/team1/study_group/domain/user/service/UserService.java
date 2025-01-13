@@ -6,6 +6,7 @@ import com.fesi6.team1.study_group.domain.meetup.repository.MeetupRepository;
 import com.fesi6.team1.study_group.domain.user.dto.*;
 import com.fesi6.team1.study_group.domain.user.entity.LoginType;
 import com.fesi6.team1.study_group.domain.user.entity.User;
+import com.fesi6.team1.study_group.domain.user.entity.UserTag;
 import com.fesi6.team1.study_group.domain.user.repository.UserFavoriteRepository;
 import com.fesi6.team1.study_group.domain.user.repository.UserRepository;
 import com.fesi6.team1.study_group.global.common.s3.S3FileService;
@@ -41,6 +42,7 @@ public class UserService {
                             .socialId(String.valueOf(kakaoUserInfoDto.getSocialId()))
                             .email(kakaoUserInfoDto.getEmail())
                             .nickname(kakaoUserInfoDto.getNickname())
+                            .loginType(LoginType.SOCIAL)
                             .profileImg(kakaoUserInfoDto.getProfileImage())
                             .build();
 
@@ -64,18 +66,21 @@ public class UserService {
                 .loginType(LoginType.CUSTOM)
                 .build();
         user.setPassword(encodedPassword);
+
         // 이미지 업로드 경로 설정
         String path = "profileImage";
         String fileName;
-
+        String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/profileImage/";
         if (image == null) {
             // 이미지가 없을 경우 랜덤 숫자를 생성하여 파일 이름으로 설정
-            int randomNum = new Random().nextInt(6) + 1; // 1~6까지의 랜덤 숫자 생성
-            fileName = "default_" + randomNum + ".jpg"; // 파일 이름 생성
+            int randomNum = new Random().nextInt(4) + 1; // 1~6까지의 랜덤 숫자 생성
+            fileName = basePath + "defaultProfileImages/" + randomNum + ".png"; // 전체 경로 포함한 파일 이름 생성
         } else {
             // 이미지 업로드 (파일 이름만 반환받음)
-            fileName = s3FileService.uploadFile(image, path);
+            String uploadedFileName = s3FileService.uploadFile(image, path);
+            fileName = basePath + uploadedFileName; // 전체 경로 포함한 파일 이름 생성
         }
+
         // 프로필 이미지 파일 이름을 설정
         user.setProfileImg(fileName);
 
@@ -121,17 +126,16 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserProfileResponseDTO findMyProfile(Long userId) {
+    public UserProfileResponseDTO findUserProfile(Long userId) {
         return new UserProfileResponseDTO(findById(userId));
     }
 
-    private User findById(Long userId) {
+    public User findById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NullPointerException("해당 유저는 존재하지 않습니다."));
     }
 
     public void updateMyProfile(Long userId, MultipartFile file, UpdateProfileRequestDTO request) throws IOException {
-        // 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
@@ -142,23 +146,40 @@ public class UserService {
         if (request.getBio() != null) {
             user.setBio(request.getBio());
         }
+
         if (request.getUserTagList() != null) {
-            user.setTags(request.getUserTagList());
+            // 기존 태그 삭제 후 새 태그 추가
+            user.getTags().clear();
+            List<UserTag> newTags = request.getUserTagList().stream()
+                    .map(tag -> {
+                        UserTag userTag = new UserTag();
+                        userTag.setUser(user);
+                        userTag.setTag(tag);
+                        return userTag;
+                    })
+                    .collect(Collectors.toList());
+            user.getTags().addAll(newTags);
         }
 
         if (file != null) {
             String path = "profileImage";
+            String currentProfileImg = user.getProfileImg();
+            String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/profileImage/";
 
-            if (user.getProfileImg() != null && !user.getProfileImg().startsWith("default")) {
-                String oldFilePath = path + "/" + user.getProfileImg();
+            boolean isDefaultImage = currentProfileImg == null || currentProfileImg.startsWith(basePath + "defaultProfileImages/");
+
+            if (!isDefaultImage && currentProfileImg != null) {
+                String oldFilePath = currentProfileImg.replace(basePath, "");
                 s3FileService.deleteFile(oldFilePath);
             }
-            String fileName = s3FileService.uploadFile(file, path);
-            user.setProfileImg(fileName);
+
+            String uploadedFileName = s3FileService.uploadFile(file, path);
+            user.setProfileImg(basePath + uploadedFileName);
         }
 
         userRepository.save(user);
     }
+
 
     public List<MyMeetupResponseDTO> getMyMeetupsByType(Long userId, String type) {
         // 1. type에 맞는 모임 조회

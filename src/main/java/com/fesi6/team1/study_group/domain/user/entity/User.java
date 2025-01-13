@@ -1,5 +1,6 @@
 package com.fesi6.team1.study_group.domain.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fesi6.team1.study_group.domain.meetup.entity.MeetupUser;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -45,8 +46,8 @@ public class User {
     @Column(length = 20)  // 소개글
     private String bio = "";
 
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference  // 순환 참조 방지
     private List<UserTag> tags = new ArrayList<>();
 
 

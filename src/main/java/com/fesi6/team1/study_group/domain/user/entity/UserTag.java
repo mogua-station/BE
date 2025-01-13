@@ -1,5 +1,6 @@
 package com.fesi6.team1.study_group.domain.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,18 +10,17 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "user_tags")
 public class UserTag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // primary key
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)  // user_id와 매핑
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;  // 해당 태그를 가진 사용자
+    @JsonBackReference  // 순환 참조 방지
+    private User user;
 
     @Column(nullable = false)
-    private String tag;  // 태그 이름
-
+    private String tag;
 }

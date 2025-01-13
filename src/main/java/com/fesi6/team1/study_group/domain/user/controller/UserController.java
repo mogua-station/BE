@@ -1,6 +1,5 @@
 package com.fesi6.team1.study_group.domain.user.controller;
 
-import com.fesi6.team1.study_group.domain.review.dto.MyReviewResponseDTO;
 import com.fesi6.team1.study_group.domain.user.dto.*;
 import com.fesi6.team1.study_group.domain.user.service.KakaoService;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
@@ -49,7 +48,7 @@ public class UserController {
      * 커스텀 회원가입
      *
      **/
-    @PostMapping("/sign")
+    @PostMapping("/sign-up")
     public ResponseEntity<?> sign(@RequestPart(required = false) MultipartFile image,
                                   @RequestPart("request") UserSignRequestDTO request) throws IOException {
 
@@ -65,7 +64,7 @@ public class UserController {
      * 커스텀 로그인
      *
      **/
-    @PostMapping("/login")
+    @PostMapping("/sign-in")
     public ResponseEntity<?> login(@RequestBody UserLoginRequestDTO request) throws IOException {
 
         String jwtToken = userService.customLogin(request);
@@ -81,10 +80,10 @@ public class UserController {
      * 내 프로필 조회
      *
      **/
-    @GetMapping("/profile")
+    @GetMapping("/profile/me")
     public ResponseEntity<ApiResponse<UserProfileResponseDTO>> findMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
-        return ResponseEntity.ok().body(successResponse(userService.findMyProfile(userId)));
+        return ResponseEntity.ok().body(successResponse(userService.findUserProfile(userId)));
     }
 
     /**
@@ -92,11 +91,12 @@ public class UserController {
      * 내 프로필 수정
      *
      **/
-    @PatchMapping("/profile")
+    @PatchMapping("/profile/me")
     public ResponseEntity<?> updateMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails,
                                              @RequestPart(required = false) MultipartFile image,
                                              @RequestPart UpdateProfileRequestDTO request) throws IOException {
         Long userId = userDetails.getUserId();
+        userService.updateMyProfile(userId, image, request);
         return ResponseEntity.ok().body("Profile update successful");
     }
 
@@ -119,10 +119,12 @@ public class UserController {
      *
      **/
     @GetMapping("/profile/{id}")
-    public ResponseEntity<ApiResponse<UserProfileResponseDTO>> findUserProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long userId = userDetails.getUserId();
-        return ResponseEntity.ok().body(successResponse(userService.findMyProfile(userId)));
+    public ResponseEntity<ApiResponse<UserProfileResponseDTO>> findUserProfile(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok().body(successResponse(userService.findUserProfile(id)));
     }
+
 
     /**
      *

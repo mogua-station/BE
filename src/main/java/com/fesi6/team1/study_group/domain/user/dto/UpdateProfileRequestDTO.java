@@ -9,17 +9,13 @@ import java.util.List;
 @Getter
 public class UpdateProfileRequestDTO {
 
-
     private final String nickname;
-    private final String profileImg;
     private final String bio;
-    private final List<UserTag> userTagList;
+    private final List<String> userTagList;
 
-
-    public UpdateProfileRequestDTO(String nickname, String profileImg, String bio, List<UserTag> userTagList) {
+    public UpdateProfileRequestDTO(String nickname,String bio, List<String> userTagList) {
 
         this.nickname = nickname;
-        this.profileImg = profileImg;
         this.bio = bio;
         this.userTagList = userTagList;
     }
