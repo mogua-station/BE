@@ -30,7 +30,7 @@ public class UserController {
      *
      **/
     @GetMapping("/kakao/callback")
-    public ResponseEntity<?> kakaoLogin(@RequestParam String code) {
+    public ResponseEntity<ApiResponse<?>> kakaoLogin(@RequestParam String code) {
 
         String kakaoToken = kakaoService.getKakaoToken(code);
         KakaoUserInfoDTO kakaoUserInfoDto = kakaoService.getKakaoUserInfo(kakaoToken);
@@ -40,7 +40,7 @@ public class UserController {
 
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + jwtToken)
-                .body("Login successful");
+                .body(ApiResponse.successWithMessage("Login successful"));
     }
 
     /**
@@ -49,13 +49,13 @@ public class UserController {
      *
      **/
     @PostMapping("/sign-up")
-    public ResponseEntity<?> sign(@RequestBody UserSignRequestDTO request) throws IOException {
+    public ResponseEntity<ApiResponse<?>> sign(@RequestBody UserSignRequestDTO request) throws IOException {
 
         String jwtToken = userService.customSave(request);
 
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + jwtToken)
-                .body("Sign successful");
+                .body(ApiResponse.successWithMessage("Sign successful"));
     }
 
     /**
@@ -64,13 +64,13 @@ public class UserController {
      *
      **/
     @PostMapping("/sign-in")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequestDTO request) throws IOException {
+    public ResponseEntity<ApiResponse<?>> login(@RequestBody UserLoginRequestDTO request) throws IOException {
 
         String jwtToken = userService.customLogin(request);
 
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + jwtToken)
-                .body("Login successful");
+                .body(ApiResponse.successWithMessage("Login successful"));
     }
 
 
@@ -80,12 +80,12 @@ public class UserController {
      *
      **/
     @PatchMapping("/profile/me")
-    public ResponseEntity<?> updateMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                             @RequestPart(required = false) MultipartFile image,
-                                             @RequestPart UpdateProfileRequestDTO request) throws IOException {
+    public ResponseEntity<ApiResponse<?>> updateMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                               @RequestPart(required = false) MultipartFile image,
+                                                               @RequestPart UpdateProfileRequestDTO request) throws IOException {
         Long userId = userDetails.getUserId();
         userService.updateMyProfile(userId, image, request);
-        return ResponseEntity.ok().body("Profile update successful");
+        return ResponseEntity.ok().body(ApiResponse.successWithMessage("Profile update successful"));
     }
 
     /**
@@ -94,11 +94,11 @@ public class UserController {
      *
      **/
     @PostMapping("/profile/password")
-    public ResponseEntity<?> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                            @RequestBody UpdatePasswordRequestDTO request) throws IOException {
+    public ResponseEntity<ApiResponse<?>> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                              @RequestBody UpdatePasswordRequestDTO request) throws IOException {
         Long userId = userDetails.getUserId();
         userService.updatePassword(userId, request);
-        return ResponseEntity.ok().body("Password update successful");
+        return ResponseEntity.ok().body(ApiResponse.successWithMessage("Password update successful"));
     }
 
     /**
@@ -111,14 +111,15 @@ public class UserController {
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long myId = userDetails.getUserId();
-        return ResponseEntity.ok().body(successResponse(userService.findUserProfile(id, myId)));
+        UserProfileResponseDTO userProfile = userService.findUserProfile(id, myId);
+        return ResponseEntity.ok().body(ApiResponse.successResponse(userProfile));
     }
 
     /**
      *
      * 내 모임 조회
      *
-     */
+     **/
     @GetMapping("/meetup/participating/{type}")
     public ResponseEntity<ApiResponse<List<MyMeetupResponseDTO>>> getMyMeetups(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -129,8 +130,9 @@ public class UserController {
         // 모임 또는 스터디 조회
         List<MyMeetupResponseDTO> meetups = userService.getMyMeetupsByType(userId, type);
 
-        return ResponseEntity.ok().body(successResponse(meetups));
+        return ResponseEntity.ok().body(ApiResponse.successResponse(meetups));
     }
+
 
     /**
      *
