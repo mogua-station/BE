@@ -49,10 +49,9 @@ public class UserController {
      *
      **/
     @PostMapping("/sign-up")
-    public ResponseEntity<?> sign(@RequestPart(required = false) MultipartFile image,
-                                  @RequestPart("request") UserSignRequestDTO request) throws IOException {
+    public ResponseEntity<?> sign(@RequestBody UserSignRequestDTO request) throws IOException {
 
-        String jwtToken = userService.customSave(image, request);
+        String jwtToken = userService.customSave(request);
 
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + jwtToken)

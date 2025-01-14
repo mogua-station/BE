@@ -55,7 +55,7 @@ public class UserService {
         return jwtTokenProvider.createToken(user.getId()); // socialId로 JWT 생성
     }
 
-    public String customSave(MultipartFile image, UserSignRequestDTO request) throws IOException {
+    public String customSave(UserSignRequestDTO request) throws IOException {
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
@@ -72,16 +72,9 @@ public class UserService {
         String path = "profileImage";
         String fileName;
         String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/profileImage/";
-        if (image == null) {
-            // 이미지가 없을 경우 랜덤 숫자를 생성하여 파일 이름으로 설정
-            int randomNum = new Random().nextInt(4) + 1; // 1~6까지의 랜덤 숫자 생성
-            fileName = basePath + "defaultProfileImages/" + randomNum + ".png"; // 전체 경로 포함한 파일 이름 생성
-        } else {
-            // 이미지 업로드 (파일 이름만 반환받음)
-            String uploadedFileName = s3FileService.uploadFile(image, path);
-            fileName = basePath + uploadedFileName; // 전체 경로 포함한 파일 이름 생성
-        }
-
+        // 이미지가 없을 경우 랜덤 숫자를 생성하여 파일 이름으로 설정
+        int randomNum = new Random().nextInt(4) + 1; // 1~6까지의 랜덤 숫자 생성
+        fileName = basePath + "defaultProfileImages/" + randomNum + ".png"; // 전체 경로 포함한 파일 이름 생성
         // 프로필 이미지 파일 이름을 설정
         user.setProfileImg(fileName);
 
