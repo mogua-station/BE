@@ -16,19 +16,35 @@ public class JwtTokenProvider {
     @Value("${jwt.secret.key}")
     private String SECRET_KEY;
 
-    public String createToken(Long userId) {
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 600 * 600;  // 1 hour
+    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7;  // 7 days
+
+    // accessToken 생성
+    public String createAccessToken(Long userId) {
         Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
         return Jwts.builder()
                 .claim("userId", userId)
                 .setIssuedAt(new Date())  // 발행 시간 추가
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))  // 1시간 유효
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))  // 1시간 유효
                 .setId(UUID.randomUUID().toString())  // 고유한 ID 추가
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
+    // refreshToken 생성
+    public String createRefreshToken(Long userId) {
+        Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        return Jwts.builder()
+                .claim("userId", userId)
+                .setIssuedAt(new Date())  // 발행 시간 추가
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))  // 7일 유효
+                .setId(UUID.randomUUID().toString())  // 고유한 ID 추가
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
 
-    public boolean validateToken(String token) {
+    // 토큰 유효성 검증 (accessToken)
+    public boolean validateAccessToken(String token) {
         try {
             Jwts.parser().setSigningKey(SECRET_KEY.getBytes()).parseClaimsJws(token);
             return true;
@@ -41,7 +57,31 @@ public class JwtTokenProvider {
         }
     }
 
-    public Long getUserIdFromToken(String token) {
+    // 토큰 유효성 검증 (refreshToken)
+    public boolean validateRefreshToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(SECRET_KEY.getBytes()).parseClaimsJws(token);
+            return true;
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            // refreshToken 만료됨
+            return false;
+        } catch (io.jsonwebtoken.JwtException e) {
+            // 잘못된 refreshToken
+            return false;
+        }
+    }
+
+    // accessToken에서 사용자 ID 추출
+    public Long getUserIdFromAccessToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY.getBytes())
+                .parseClaimsJws(token)
+                .getBody()
+                .get("userId", Long.class);
+    }
+
+    // refreshToken에서 사용자 ID 추출
+    public Long getUserIdFromRefreshToken(String token) {
         return Jwts.parser()
                 .setSigningKey(SECRET_KEY.getBytes())
                 .parseClaimsJws(token)

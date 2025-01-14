@@ -37,9 +37,11 @@ public class UserController {
 
         // 유저 저장 및 JWT 생성
         String jwtToken = userService.kakaoSave(kakaoUserInfoDto);
+//        String refreshToken = jwtTokenProvider.createRefreshToken(kakaoUserInfoDto.getUserId());
 
         return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + jwtToken)
+                .header("Authorization", "Bearer " + jwtToken)  // access token
+//                .header("Refresh-Token", refreshToken)  // refresh token 추가
                 .body(ApiResponse.successWithMessage("Login successful"));
     }
 

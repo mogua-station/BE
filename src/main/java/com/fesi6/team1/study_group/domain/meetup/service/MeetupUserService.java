@@ -15,4 +15,10 @@ public class MeetupUserService {
         meetupUserRepository.save(meetupUser);
     }
 
+    public void leaveMeetup(Long meetupId, Long userId) {
+        MeetupUser meetupUser = meetupUserRepository.findByMeetupIdAndUserId(meetupId, userId)
+                .orElseThrow(() -> new IllegalStateException("모임에 참가하지 않았습니다"));
+        meetupUserRepository.delete(meetupUser);
+    }
+
 }

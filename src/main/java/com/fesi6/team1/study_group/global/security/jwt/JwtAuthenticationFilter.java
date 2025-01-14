@@ -22,18 +22,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String jwt = getJwtFromRequest(request); // JWT 추출
+        String accessToken = getJwtFromRequest(request); // JWT 추출
 
-        if (jwt != null && jwtTokenProvider.validateToken(jwt)) { // JWT 유효성 체크
-            Long userId = jwtTokenProvider.getUserIdFromToken(jwt); // JWT에서 userId 추출
+        if (accessToken != null && jwtTokenProvider.validateAccessToken(accessToken)) { // accessToken 유효성 체크
+            Long userId = jwtTokenProvider.getUserIdFromAccessToken(accessToken); // accessToken에서 userId 추출
 
             // CustomUserDetails로 인증 객체 생성
             CustomUserDetails userDetails = new CustomUserDetails(userId);
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-            // 인증 정보 설정 (여기서만 인증 정보를 설정)
+            // 인증 정보 설정
             SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else if (accessToken != null && !jwtTokenProvider.validateAccessToken(accessToken)) {
+            // accessToken이 만료된 경우, refreshToken 확인
+            String refreshToken = request.getHeader("Refresh-Token");  // 헤더에서 refreshToken 추출
+
+            if (refreshToken != null && jwtTokenProvider.validateRefreshToken(refreshToken)) {
+                Long userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken); // refreshToken에서 userId 추출
+
+                // CustomUserDetails로 인증 객체 생성
+                CustomUserDetails userDetails = new CustomUserDetails(userId);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                // 인증 정보 설정
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                // 새로운 accessToken 발급 후 response에 추가 (선택 사항)
+                String newAccessToken = jwtTokenProvider.createAccessToken(userId);
+                response.setHeader("Authorization", "Bearer " + newAccessToken);
+            }
         }
 
         filterChain.doFilter(request, response); // 필터 체인 진행

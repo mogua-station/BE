@@ -2,6 +2,7 @@ package com.fesi6.team1.study_group.domain.meetup.entity;
 
 import com.fesi6.team1.study_group.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -35,14 +36,13 @@ public class MeetupUser {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+    @Builder
+    public MeetupUser(Meetup meetup, User user, boolean hasReview, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.meetup = meetup;
+        this.user = user;
+        this.hasReview = hasReview;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }

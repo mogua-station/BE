@@ -52,7 +52,7 @@ public class UserService {
                 });
 
         // JWT 토큰 발급
-        return jwtTokenProvider.createToken(user.getId()); // socialId로 JWT 생성
+        return jwtTokenProvider.createAccessToken(user.getId()); // socialId로 JWT 생성
     }
 
     public String customSave(UserSignRequestDTO request) throws IOException {
@@ -82,7 +82,7 @@ public class UserService {
         userRepository.save(user);
 
         // JWT 생성 및 반환
-        return jwtTokenProvider.createToken(user.getId());
+        return jwtTokenProvider.createAccessToken(user.getId());
     }
 
     public String customLogin(UserLoginRequestDTO request) throws IOException {
@@ -96,7 +96,7 @@ public class UserService {
         }
 
         // JWT 생성 및 반환
-        return jwtTokenProvider.createToken(user.getId());
+        return jwtTokenProvider.createAccessToken(user.getId());
     }
 
     public void updatePassword(Long userId, UpdatePasswordRequestDTO request) {

@@ -42,14 +42,17 @@ public class MeetupRequestService {
         // 3. 신청 정보 저장
         meetupRequestRepository.save(request);
 
-//        MeetupUser meetupUser = MeetupUser.builder()
-//                .meetup(meetup)
-//                .user(user)
-//                .status("JOINED") // 바로 참가 상태로 설정
-//                .hasReview(false)
-//                .createdAt(LocalDateTime.now())
-//                .updatedAt(LocalDateTime.now())
-//                .build();
-//        meetupUserService.save(meetupUser);
+        MeetupUser meetupUser = MeetupUser.builder()
+                .meetup(meetup)
+                .user(user)
+                .hasReview(false)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+        meetupUserService.save(meetupUser);
+    }
+
+    public void leaveMeetup(Long meetupId, Long userId) {
+        meetupUserService.leaveMeetup(meetupId, userId);
     }
 }
