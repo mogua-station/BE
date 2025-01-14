@@ -1,6 +1,7 @@
 package com.fesi6.team1.study_group.domain.user.dto;
 
 import com.fesi6.team1.study_group.domain.meetup.entity.Meetup;
+import com.fesi6.team1.study_group.domain.meetup.entity.MeetupLocation;
 import com.fesi6.team1.study_group.domain.user.entity.User;
 import lombok.Getter;
 
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 public class MyMeetupResponseDTO {
 
     private final String title;
-    private final String location;
+    private final MeetupLocation location;
     private final int currentParticipants;
     private final LocalDateTime recruitmentStartDate;
     private final LocalDateTime recruitmentEndDate;
@@ -21,7 +22,7 @@ public class MyMeetupResponseDTO {
 
     public MyMeetupResponseDTO(Meetup meetup, boolean isFavorite) {
         this.title = meetup.getTitle();
-        this.location = meetup.getLocation();
+        this.location = meetup.isOnline() ? null : meetup.getLocation();
         this.currentParticipants = meetup.getMeetupUsers().size(); // 현재 참가자 수
         this.recruitmentStartDate = meetup.getCreatedAt();
         this.recruitmentEndDate = meetup.getRecruitmentEndDate();

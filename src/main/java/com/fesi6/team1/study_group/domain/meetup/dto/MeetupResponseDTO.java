@@ -2,6 +2,7 @@ package com.fesi6.team1.study_group.domain.meetup.dto;
 
 import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
 import com.fesi6.team1.study_group.domain.meetup.entity.Meetup;
+import com.fesi6.team1.study_group.domain.meetup.entity.MeetupLocation;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -11,7 +12,7 @@ public class MeetupResponseDTO {
 
     private final String title;
     private final MeetingType meetingType;
-    private final String location;
+    private final MeetupLocation location;
     private final String content;
     private final LocalDateTime recruitmentEndDate;
     private final LocalDateTime meetingStartDate;
@@ -26,7 +27,12 @@ public class MeetupResponseDTO {
     public MeetupResponseDTO(Meetup meetup) {
         this.title = meetup.getTitle();
         this.meetingType = meetup.getMeetingType();
-        this.location = meetup.getLocation();
+
+        if (meetup.isOnline()) {
+            this.location = null;
+        } else {
+            this.location = meetup.getLocation();
+        }
         this.content = meetup.getContent();
         this.recruitmentEndDate = meetup.getRecruitmentEndDate();
         this.meetingStartDate = meetup.getMeetingStartDate();
@@ -38,5 +44,6 @@ public class MeetupResponseDTO {
         this.hostNickname = meetup.getHost().getNickname();
         this.hostId = meetup.getHost().getId();
     }
+
 }
 

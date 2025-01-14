@@ -3,15 +3,25 @@ package com.fesi6.team1.study_group.domain.meetup.service;
 import com.fesi6.team1.study_group.domain.meetup.dto.CreateMeetupRequestDTO;
 import com.fesi6.team1.study_group.domain.meetup.dto.MeetupResponseDTO;
 import com.fesi6.team1.study_group.domain.meetup.dto.UpdateMeetupRequestDTO;
+import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
 import com.fesi6.team1.study_group.domain.meetup.entity.Meetup;
+import com.fesi6.team1.study_group.domain.meetup.entity.MeetupLocation;
+import com.fesi6.team1.study_group.domain.meetup.entity.MeetupStatus;
 import com.fesi6.team1.study_group.domain.meetup.repository.MeetupRepository;
+import com.fesi6.team1.study_group.domain.meetup.specification.MeetupSpecification;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
 import com.fesi6.team1.study_group.global.common.s3.S3FileService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +52,6 @@ public class MeetupService {
         Meetup meetup = Meetup.builder()
                 .title(request.getTitle())
                 .meetingType(request.getMeetingType())
-                .location(request.getLocation())
                 .content(request.getContent())
                 .recruitmentEndDate(request.getRecruitmentEndDate())
                 .meetingStartDate(request.getMeetingStartDate())
@@ -52,7 +61,9 @@ public class MeetupService {
                 .maxParticipants(request.getMaxParticipants())
                 .minParticipants(request.getMinParticipants())
                 .isOnline(request.isOnline())
+                .location(request.isOnline() ? null : MeetupLocation.valueOf(String.valueOf(request.getLocation())))
                 .build();
+
 
         meetupRepository.save(meetup);
     }
@@ -109,5 +120,47 @@ public class MeetupService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 모임이 존재하지 않습니다."));
     }
 
+    public Page<MeetupResponseDTO> getMeetupList(
+            Integer page, Integer limit, String orderBy, String type, String state, String location,
+            LocalDate startDate, LocalDate endDate) {
+
+        Pageable pageable = PageRequest.of(page, limit, getSortBy(orderBy));
+
+        Specification<Meetup> spec = Specification.where(null);
+
+        // 필터링 조건 추가
+        if (!type.equals("ALL")) {
+            spec = spec.and(MeetupSpecification.hasType(MeetingType.valueOf(type)));
+        }
+        if (!state.equals("ALL")) {
+            spec = spec.and(MeetupSpecification.hasState(MeetupStatus.valueOf(state)));
+        }
+        if (!location.equals("ALL")) {
+            spec = spec.and(MeetupSpecification.hasLocation(location));
+        }
+        if (startDate != null) {
+            spec = spec.and(MeetupSpecification.startDateAfter(startDate));
+        }
+        if (endDate != null) {
+            spec = spec.and(MeetupSpecification.endDateBefore(endDate));
+        }
+
+        // Repository 호출
+        Page<Meetup> meetups = meetupRepository.findAll(spec, pageable);
+
+        // DTO 변환
+        return meetups.map(MeetupResponseDTO::new);
+    }
+
+    private Sort getSortBy(String orderBy) {
+        switch (orderBy) {
+            case "deadline":
+                return Sort.by(Sort.Direction.ASC, "recruitmentEndDate");
+            case "participant":
+                return Sort.by(Sort.Direction.DESC, "maxParticipants");
+            default:
+                return Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+    }
 
 }

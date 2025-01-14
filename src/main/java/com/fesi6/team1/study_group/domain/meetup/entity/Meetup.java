@@ -30,8 +30,8 @@ public class Meetup {
     @Column(nullable = false, updatable = false) // 수정 불가
     private MeetingType meetingType; // 모임 종류
 
-    @Column(nullable = false)
-    private String location;  // 모임 지역
+    @Column(nullable = true)
+    private MeetupLocation location;  // 모임 지역
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;  // 본문
@@ -74,7 +74,7 @@ public class Meetup {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Meetup(String title, MeetingType meetingType, String location, String content, LocalDateTime recruitmentEndDate,
+    public Meetup(String title, MeetingType meetingType, MeetupLocation location, String content, LocalDateTime recruitmentEndDate,
                   LocalDateTime meetingStartDate, LocalDateTime meetingEndDate, String thumbnail,
                   User host, int maxParticipants, int minParticipants, boolean isOnline) {
         this.title = title;
@@ -89,6 +89,11 @@ public class Meetup {
         this.maxParticipants = maxParticipants;
         this.minParticipants = minParticipants;
         this.isOnline = isOnline;
-    }
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
 
+        if (this.isOnline) {
+            this.location = null;
+        }
+    }
 }
