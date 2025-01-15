@@ -1,13 +1,13 @@
 package com.fesi6.team1.study_group.domain.meetup.controller;
 
 import com.fesi6.team1.study_group.domain.meetup.dto.CreateMeetupRequestDTO;
+import com.fesi6.team1.study_group.domain.meetup.dto.MeetupListResponseDTO;
 import com.fesi6.team1.study_group.domain.meetup.dto.MeetupResponseDTO;
 import com.fesi6.team1.study_group.domain.meetup.dto.UpdateMeetupRequestDTO;
 import com.fesi6.team1.study_group.domain.meetup.service.MeetupService;
 import com.fesi6.team1.study_group.global.common.response.ApiResponse;
 import com.fesi6.team1.study_group.global.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -99,28 +98,13 @@ public class MeetupController {
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
 
         // 서비스 호출
-        Page<MeetupResponseDTO> meetupList = meetupService.getMeetupList(
+        MeetupListResponseDTO meetupListResponseDTO = meetupService.getMeetupList(
                 page, limit, orderBy, type, state, location, startDate, endDate
         );
-
-        if (meetupList.isEmpty()) {
-            System.out.println("No meetups found for the given parameters.");
-        } else {
-            System.out.println("Meetups found: " + meetupList.getTotalElements());
-        }
-
-        boolean isLast = meetupList.isLast();
-        Integer nextPage = isLast ? null : page + 1;
-
-        Map<String, Object> additionalData = Map.of(
-                "nextPage", nextPage,
-                "isLast", isLast
-        );
-
         ApiResponse<List<MeetupResponseDTO>> response = ApiResponse.successResponse(
-                meetupList.getContent(), additionalData
+                meetupListResponseDTO.getMeetups(), meetupListResponseDTO.getAdditionalData()
         );
-
         return ResponseEntity.ok().body(response);
     }
+
 }

@@ -26,6 +26,7 @@ public class SecurityConfig {
             "/user/kakao/**",// 카카오 로그인 콜백 URL
             "/user/sign-up",
             "/user/sign-in",
+            "/meetups/list"
     };
 
     @Bean
@@ -69,14 +70,15 @@ public class SecurityConfig {
         // 인증 정보 허용 여부 설정
         configuration.setAllowCredentials(true); // 쿠키 또는 인증 정보를 포함한 요청 허용
 
+        // 클라이언트에서 접근할 수 있도록 노출할 헤더 설정
+        configuration.addExposedHeader("Authorization"); // Authorization 헤더 노출
+
         // CORS 설정을 적용할 경로 매핑
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 CORS 설정 적용
 
         return source;
     }
-
-
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {

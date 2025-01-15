@@ -1,6 +1,7 @@
 package com.fesi6.team1.study_group.domain.meetup.service;
 
 import com.fesi6.team1.study_group.domain.meetup.dto.CreateMeetupRequestDTO;
+import com.fesi6.team1.study_group.domain.meetup.dto.MeetupListResponseDTO;
 import com.fesi6.team1.study_group.domain.meetup.dto.MeetupResponseDTO;
 import com.fesi6.team1.study_group.domain.meetup.dto.UpdateMeetupRequestDTO;
 import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
@@ -21,7 +22,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -120,7 +126,7 @@ public class MeetupService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 모임이 존재하지 않습니다."));
     }
 
-    public Page<MeetupResponseDTO> getMeetupList(
+    public MeetupListResponseDTO getMeetupList(
             Integer page, Integer limit, String orderBy, String type, String state, String location,
             LocalDate startDate, LocalDate endDate) {
 
@@ -128,14 +134,22 @@ public class MeetupService {
 
         Specification<Meetup> spec = Specification.where(null);
 
-        // 필터링 조건 추가
-        if (!type.equals("ALL")) {
-            spec = spec.and(MeetupSpecification.hasType(MeetingType.valueOf(type)));
+        // 필터링 조건 적용
+        if (!"ALL".equals(type)) {
+            try {
+                spec = spec.and(MeetupSpecification.hasType(MeetingType.valueOf(type)));
+            } catch (IllegalArgumentException e) {
+                throw new InvalidParameterException("Invalid meeting type: " + type);
+            }
         }
-        if (!state.equals("ALL")) {
-            spec = spec.and(MeetupSpecification.hasState(MeetupStatus.valueOf(state)));
+        if (!"ALL".equals(state)) {
+            try {
+                spec = spec.and(MeetupSpecification.hasState(MeetupStatus.valueOf(state)));
+            } catch (IllegalArgumentException e) {
+                throw new InvalidParameterException("Invalid meeting state: " + state);
+            }
         }
-        if (!location.equals("ALL")) {
+        if (!"ALL".equals(location)) {
             spec = spec.and(MeetupSpecification.hasLocation(location));
         }
         if (startDate != null) {
@@ -148,9 +162,39 @@ public class MeetupService {
         // Repository 호출
         Page<Meetup> meetups = meetupRepository.findAll(spec, pageable);
 
+        long totalElements = meetups.getTotalElements();
+        int totalPages = (int) Math.ceil((double) totalElements / limit); // 페이지 수 계산
+
+        // 페이지 검증: page가 유효한지 확인
+        if (page >= totalPages) { // 페이지가 유효하지 않으면
+            page = totalPages - 1;  // 마지막 페이지로 수정
+            pageable = PageRequest.of(page, limit, getSortBy(orderBy)); // 새로운 pageable 생성
+            meetups = meetupRepository.findAll(spec, pageable); // 재조회
+        }
+
+        // totalElements가 0일 경우 빈 리스트 반환
+        if (totalElements == 0) {
+            return new MeetupListResponseDTO(Collections.emptyList(), Map.of("nextPage", -1, "isLast", true));
+        }
+
         // DTO 변환
-        return meetups.map(MeetupResponseDTO::new);
+        List<MeetupResponseDTO> meetupResponseList = meetups.stream()
+                .map(meetup -> new MeetupResponseDTO(meetup))
+                .collect(Collectors.toList());
+
+        // 마지막 페이지 처리: page가 마지막 페이지인지 확인
+        boolean isLast = page == totalPages - 1;  // 마지막 페이지인 경우
+        Integer nextPage = isLast ? -1 : page + 1; // 마지막 페이지일 경우 nextPage는 -1
+
+        Map<String, Object> additionalData = Map.of(
+                "nextPage", nextPage,
+                "isLast", isLast
+        );
+
+        return new MeetupListResponseDTO(meetupResponseList, additionalData);
     }
+
+
 
     private Sort getSortBy(String orderBy) {
         switch (orderBy) {
@@ -162,5 +206,4 @@ public class MeetupService {
                 return Sort.by(Sort.Direction.DESC, "createdAt");
         }
     }
-
 }
