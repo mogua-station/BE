@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -51,41 +52,54 @@ public class UserService {
                     return userRepository.save(newUser);
                 });
 
-        // JWT 토큰 발급
         return jwtTokenProvider.createAccessToken(user.getId()); // socialId로 JWT 생성
     }
 
-    public String customSave(UserSignRequestDTO request) throws IOException {
+    public Map<String, Object> customSave(UserSignRequestDTO request) throws IOException {
+        // 이메일 중복 체크
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        }
+
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         // 새로운 User 객체 생성
         User user = User.customUserBuilder()
                 .email(request.getEmail())
-                .password(encodedPassword)  // 암호화된 비밀번호 설정
                 .nickname(request.getNickname())
                 .loginType(LoginType.CUSTOM)
                 .build();
         user.setPassword(encodedPassword);
 
-        // 이미지 업로드 경로 설정
-        String path = "profileImage";
-        String fileName;
+        // 프로필 이미지 설정
         String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/profileImage/";
-        // 이미지가 없을 경우 랜덤 숫자를 생성하여 파일 이름으로 설정
-        int randomNum = new Random().nextInt(4) + 1; // 1~6까지의 랜덤 숫자 생성
-        fileName = basePath + "defaultProfileImages/" + randomNum + ".png"; // 전체 경로 포함한 파일 이름 생성
-        // 프로필 이미지 파일 이름을 설정
+        int randomNum = new Random().nextInt(4) + 1; // 1~4까지의 랜덤 숫자 생성
+        String fileName = basePath + "defaultProfileImages/" + randomNum + ".png"; // 프로필 이미지 경로
         user.setProfileImg(fileName);
 
-        // User 저장 (ID를 생성하고 프로필 이미지도 포함)
+        // 사용자 저장
         userRepository.save(user);
 
-        // JWT 생성 및 반환
-        return jwtTokenProvider.createAccessToken(user.getId());
+        // JWT 생성
+        String jwtToken = jwtTokenProvider.createAccessToken(user.getId());
+
+        // 응답 데이터 생성
+        Map<String, Object> userData = Map.of(
+                "email", user.getEmail(),
+                "name", user.getNickname()
+        );
+
+        // "user"로 감싸서 반환
+        return Map.of(
+                "user", userData,  // "user"로 감싸기
+                "jwtToken", jwtToken  // JWT 토큰도 반환
+        );
     }
 
-    public String customLogin(UserLoginRequestDTO request) throws IOException {
+
+
+    public UserLoginResponseDTO customLogin(UserLoginRequestDTO request) throws IOException {
         // 사용자가 입력한 이메일을 기반으로 User 찾기
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("등록된 이메일이 없습니다."));
@@ -95,8 +109,15 @@ public class UserService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        // JWT 생성 및 반환
-        return jwtTokenProvider.createAccessToken(user.getId());
+        // JWT 생성
+        String jwtToken = jwtTokenProvider.createAccessToken(user.getId());
+
+        // 로그인한 사용자 정보 반환 (DTO)
+        UserLoginResponseDTO userResponse = new UserLoginResponseDTO(user);
+
+        // 사용자와 JWT 정보를 함께 반환
+        userResponse.setJwtToken(jwtToken);
+        return userResponse;
     }
 
     public void updatePassword(Long userId, UpdatePasswordRequestDTO request) {
@@ -182,9 +203,7 @@ public class UserService {
         user.setProfileImg(basePath + uploadedFileName);
     }
 
-
-
-    public List<MyMeetupResponseDTO> getMyMeetupsByType(Long userId, String type) {
+    public List<UserMeetupResponseDTO> getUserMeetupsByType(Long userId, String type) {
         // 1. type에 맞는 모임 조회
         List<Meetup> meetups;
 
@@ -201,7 +220,7 @@ public class UserService {
                 .map(meetup -> {
                     // 각 모임에 대해 isFavorite 계산
                     boolean isFavorite = checkIfUserFavorite(userId, meetup.getId());
-                    return new MyMeetupResponseDTO(meetup, isFavorite);
+                    return new UserMeetupResponseDTO(meetup, isFavorite);
                 })
                 .collect(Collectors.toList());
     }

@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import static com.fesi6.team1.study_group.global.common.response.ApiResponse.successResponse;
 
@@ -34,15 +35,16 @@ public class UserController {
 
         String kakaoToken = kakaoService.getKakaoToken(code);
         KakaoUserInfoDTO kakaoUserInfoDto = kakaoService.getKakaoUserInfo(kakaoToken);
-
-        // 유저 저장 및 JWT 생성
         String jwtToken = userService.kakaoSave(kakaoUserInfoDto);
-//        String refreshToken = jwtTokenProvider.createRefreshToken(kakaoUserInfoDto.getUserId());
+
+        Map<String, Object> userData = Map.of(
+                "email", kakaoUserInfoDto.getEmail(),
+                "name", kakaoUserInfoDto.getNickname()
+        );
 
         return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + jwtToken)  // access token
-//                .header("Refresh-Token", refreshToken)  // refresh token 추가
-                .body(ApiResponse.successWithMessage("Login successful"));
+                .header("Authorization", "Bearer " + jwtToken)  // access token 헤더에 추가
+                .body(ApiResponse.successWithDataAndMessage(Map.of("user", userData), "Login successful"));
     }
 
     /**
@@ -53,12 +55,17 @@ public class UserController {
     @PostMapping("/sign-up")
     public ResponseEntity<ApiResponse<?>> sign(@RequestBody UserSignRequestDTO request) throws IOException {
 
-        String jwtToken = userService.customSave(request);
+        Map<String, Object> responseData = userService.customSave(request);
+        String jwtToken = (String) responseData.get("jwtToken");
+        Map<String, Object> wrappedUserData = Map.of(
+                "user", responseData.get("user")  // "user" 데이터 감싸기
+        );
 
         return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + jwtToken)
-                .body(ApiResponse.successWithMessage("Sign successful"));
+                .header("Authorization", "Bearer " + jwtToken)  // 헤더에 JWT 추가
+                .body(ApiResponse.successWithDataAndMessage(wrappedUserData, "Sign-up successful"));
     }
+
 
     /**
      *
@@ -67,14 +74,19 @@ public class UserController {
      **/
     @PostMapping("/sign-in")
     public ResponseEntity<ApiResponse<?>> login(@RequestBody UserLoginRequestDTO request) throws IOException {
+        // 로그인 서비스 호출 (사용자 정보와 JWT 포함)
+        UserLoginResponseDTO userResponse = userService.customLogin(request);
 
-        String jwtToken = userService.customLogin(request);
+        // 응답 데이터 준비
+        Map<String, Object> responseData = Map.of(
+                "user", userResponse
+        );
 
+        // JWT 포함하여 응답 반환
         return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + jwtToken)
-                .body(ApiResponse.successWithMessage("Login successful"));
+                .header("Authorization", "Bearer " + userResponse.getJwtToken())  // 헤더에 JWT 추가
+                .body(ApiResponse.successResponse(responseData));  // 사용자 정보 포함된 데이터 반환
     }
-
 
     /**
      *
@@ -119,18 +131,17 @@ public class UserController {
 
     /**
      *
-     * 내 모임 조회
+     * 유저 모임 조회
      *
      **/
-    @GetMapping("/meetup/participating/{type}")
-    public ResponseEntity<ApiResponse<List<MyMeetupResponseDTO>>> getMyMeetups(
+    @GetMapping("/{profileUserId}/meetup/participating/{type}")
+    public ResponseEntity<ApiResponse<List<UserMeetupResponseDTO>>> getMyMeetups(
             @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("profileUserId") Long profileUserId,
             @PathVariable("type") String type) {
 
         Long userId = userDetails.getUserId();
-
-        // 모임 또는 스터디 조회
-        List<MyMeetupResponseDTO> meetups = userService.getMyMeetupsByType(userId, type);
+        List<UserMeetupResponseDTO> meetups = userService.getUserMeetupsByType(userId, type);
 
         return ResponseEntity.ok().body(ApiResponse.successResponse(meetups));
     }
@@ -138,7 +149,7 @@ public class UserController {
 
     /**
      *
-     * 내 리뷰 조회
+     * 유저 리뷰 조회
      *
      */
 //    @GetMapping("/reviews/{type}/{status}")

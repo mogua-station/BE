@@ -3,6 +3,7 @@ package com.fesi6.team1.study_group.domain.meetup.dto;
 import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
 import com.fesi6.team1.study_group.domain.meetup.entity.Meetup;
 import com.fesi6.team1.study_group.domain.meetup.entity.MeetupLocation;
+import com.fesi6.team1.study_group.domain.meetup.entity.MeetupStatus;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,8 @@ public class MeetupResponseDTO {
     private final String thumbnail;
     private final String hostNickname;
     private final Long hostId;
-    private List<ParticipantDTO> participants;
+    private final List<ParticipantDTO> participants;
+    private final MeetupStatus status;
 
     public MeetupResponseDTO(Meetup meetup) {
         this.meetupId = meetup.getId();
@@ -56,6 +58,7 @@ public class MeetupResponseDTO {
                         meetupUser.getUser().getProfileImg()
                 ))
                 .collect(Collectors.toList());
+        this.status = meetup.getStatus();
     }
 }
 
