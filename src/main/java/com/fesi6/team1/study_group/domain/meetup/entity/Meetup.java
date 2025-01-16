@@ -96,4 +96,26 @@ public class Meetup {
             this.location = null;
         }
     }
+
+    public void updateStatusIfNeeded() {
+        LocalDateTime now = LocalDateTime.now();
+
+        MeetupStatus newStatus;
+        if (now.isBefore(this.recruitmentEndDate)) {
+            newStatus = MeetupStatus.RECRUITING;
+        } else if (now.isBefore(this.meetingStartDate)) {
+            newStatus = MeetupStatus.BEFORE_START;
+        } else if (now.isBefore(this.meetingEndDate)) {
+            newStatus = MeetupStatus.IN_PROGRESS;
+        } else {
+            newStatus = MeetupStatus.COMPLETED;
+        }
+
+        // 상태가 변경된 경우 업데이트
+        if (this.status != newStatus) {
+            this.status = newStatus;
+            this.updatedAt = now; // 상태가 변경된 시간을 기록
+        }
+    }
+
 }

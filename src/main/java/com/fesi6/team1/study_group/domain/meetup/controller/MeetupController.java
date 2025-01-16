@@ -77,7 +77,7 @@ public class MeetupController {
     @GetMapping("/{meetupId}")
     public ResponseEntity<ApiResponse<MeetupResponseDTO>> getMeetupById(
             @PathVariable("meetupId") Long meetupId) {
-        MeetupResponseDTO response = new MeetupResponseDTO(meetupService.findMeetupById(meetupId));
+        MeetupResponseDTO response = new MeetupResponseDTO(meetupService.findMeetupByIdWithStatusUpdate(meetupId));
         return ResponseEntity.ok().body(ApiResponse.successResponse(response));
     }
 
@@ -91,16 +91,16 @@ public class MeetupController {
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit,
             @RequestParam(value = "orderBy", defaultValue = "latest") String orderBy,
-            @RequestParam(value = "type", defaultValue = "STUDY") String type,
+            @RequestParam(value = "type", defaultValue = "ALL") String type,
             @RequestParam(value = "state", defaultValue = "ALL") String state,
             @RequestParam(value = "location", defaultValue = "ALL") String location,
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
 
-        // 서비스 호출
-        MeetupListResponseDTO meetupListResponseDTO = meetupService.getMeetupList(
+        MeetupListResponseDTO meetupListResponseDTO = meetupService.getMeetupListWithStatusUpdate(
                 page, limit, orderBy, type, state, location, startDate, endDate
         );
+
         ApiResponse<List<MeetupResponseDTO>> response = ApiResponse.successResponse(
                 meetupListResponseDTO.getMeetups(), meetupListResponseDTO.getAdditionalData()
         );

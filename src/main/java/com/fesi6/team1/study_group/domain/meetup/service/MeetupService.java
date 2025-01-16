@@ -126,12 +126,22 @@ public class MeetupService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 모임이 존재하지 않습니다."));
     }
 
-    public MeetupListResponseDTO getMeetupList(
+    public Meetup findMeetupByIdWithStatusUpdate(Long meetupId) {
+        Meetup meetup = meetupRepository.findById(meetupId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 모임이 존재하지 않습니다."));
+
+        // 상태 업데이트
+        meetup.updateStatusIfNeeded();
+        meetupRepository.save(meetup);
+
+        return meetup;
+    }
+
+    public MeetupListResponseDTO getMeetupListWithStatusUpdate(
             Integer page, Integer limit, String orderBy, String type, String state, String location,
             LocalDate startDate, LocalDate endDate) {
 
         Pageable pageable = PageRequest.of(page, limit, getSortBy(orderBy));
-
         Specification<Meetup> spec = Specification.where(null);
 
         // 필터링 조건 적용
@@ -159,32 +169,23 @@ public class MeetupService {
             spec = spec.and(MeetupSpecification.endDateBefore(endDate));
         }
 
-        // Repository 호출
         Page<Meetup> meetups = meetupRepository.findAll(spec, pageable);
 
-        long totalElements = meetups.getTotalElements();
-        int totalPages = (int) Math.ceil((double) totalElements / limit); // 페이지 수 계산
-
-        // 페이지 검증: page가 유효한지 확인
-        if (page >= totalPages) { // 페이지가 유효하지 않으면
-            page = totalPages - 1;  // 마지막 페이지로 수정
-            pageable = PageRequest.of(page, limit, getSortBy(orderBy)); // 새로운 pageable 생성
-            meetups = meetupRepository.findAll(spec, pageable); // 재조회
-        }
-
-        // totalElements가 0일 경우 빈 리스트 반환
-        if (totalElements == 0) {
-            return new MeetupListResponseDTO(Collections.emptyList(), Map.of("nextPage", -1, "isLast", true));
-        }
+        // 상태 업데이트 및 저장
+        List<Meetup> updatedMeetups = meetups.stream()
+                .peek(Meetup::updateStatusIfNeeded)
+                .collect(Collectors.toList());
+        meetupRepository.saveAll(updatedMeetups);
 
         // DTO 변환
-        List<MeetupResponseDTO> meetupResponseList = meetups.stream()
-                .map(meetup -> new MeetupResponseDTO(meetup))
+        List<MeetupResponseDTO> meetupResponseList = updatedMeetups.stream()
+                .map(MeetupResponseDTO::new)
                 .collect(Collectors.toList());
 
-        // 마지막 페이지 처리: page가 마지막 페이지인지 확인
-        boolean isLast = page == totalPages - 1;  // 마지막 페이지인 경우
-        Integer nextPage = isLast ? -1 : page + 1; // 마지막 페이지일 경우 nextPage는 -1
+        long totalElements = meetups.getTotalElements();
+        int totalPages = (int) Math.ceil((double) totalElements / limit);
+        boolean isLast = page == totalPages - 1;
+        Integer nextPage = isLast ? -1 : page + 1;
 
         Map<String, Object> additionalData = Map.of(
                 "nextPage", nextPage,
@@ -194,14 +195,11 @@ public class MeetupService {
         return new MeetupListResponseDTO(meetupResponseList, additionalData);
     }
 
-
-
     private Sort getSortBy(String orderBy) {
-        switch (orderBy) {
-            case "deadline":
-                return Sort.by(Sort.Direction.ASC, "recruitmentEndDate");
-            case "participant":
-                return Sort.by(Sort.Direction.DESC, "maxParticipants");
+        switch (orderBy.toLowerCase()) {
+            case "oldest":
+                return Sort.by(Sort.Direction.ASC, "createdAt");
+            case "latest":
             default:
                 return Sort.by(Sort.Direction.DESC, "createdAt");
         }
