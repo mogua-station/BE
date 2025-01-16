@@ -44,5 +44,4 @@ public class MeetupUser {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
-
 }

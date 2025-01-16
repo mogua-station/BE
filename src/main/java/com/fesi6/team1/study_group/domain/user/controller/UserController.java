@@ -1,5 +1,8 @@
 package com.fesi6.team1.study_group.domain.user.controller;
 
+import com.fesi6.team1.study_group.domain.meetup.dto.MeetupListResponseDTO;
+import com.fesi6.team1.study_group.domain.meetup.dto.MeetupResponseDTO;
+import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
 import com.fesi6.team1.study_group.domain.user.dto.*;
 import com.fesi6.team1.study_group.domain.user.service.KakaoService;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
@@ -137,16 +140,21 @@ public class UserController {
      * 유저 모임 조회
      *
      **/
-    @GetMapping("/{profileUserId}/meetup/participating/{type}")
-    public ResponseEntity<ApiResponse<List<UserMeetupResponseDTO>>> getMyMeetups(
+    @GetMapping("/{profileUserId}/meetups/participating/{type}")
+    public ResponseEntity<ApiResponse<List<MeetupResponseDTO>>> getUserMeetups(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("profileUserId") Long profileUserId,
-            @PathVariable("type") String type) {
+            @PathVariable("type") MeetingType type,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "limit", defaultValue = "10") Integer limit ) {
 
         Long userId = userDetails.getUserId();
-        List<UserMeetupResponseDTO> meetups = userService.getUserMeetupsByType(userId,profileUserId, type);
+        MeetupListResponseDTO meetupListResponseDTO = userService.getUserMeetupsByType(profileUserId, type, page, limit);
 
-        return ResponseEntity.ok().body(ApiResponse.successResponse(meetups));
+        ApiResponse<List<MeetupResponseDTO>> response = ApiResponse.successResponse(
+                meetupListResponseDTO.getMeetups(), meetupListResponseDTO.getAdditionalData()
+        );
+        return ResponseEntity.ok().body(response);
     }
 
 

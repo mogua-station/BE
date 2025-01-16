@@ -204,4 +204,5 @@ public class MeetupService {
                 return Sort.by(Sort.Direction.DESC, "createdAt");
         }
     }
+
 }

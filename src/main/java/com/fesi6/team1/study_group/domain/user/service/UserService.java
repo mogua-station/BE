@@ -1,26 +1,29 @@
 package com.fesi6.team1.study_group.domain.user.service;
 
+import com.fesi6.team1.study_group.domain.meetup.dto.MeetupListResponseDTO;
+import com.fesi6.team1.study_group.domain.meetup.dto.MeetupResponseDTO;
 import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
 import com.fesi6.team1.study_group.domain.meetup.entity.Meetup;
-import com.fesi6.team1.study_group.domain.meetup.repository.MeetupRepository;
+import com.fesi6.team1.study_group.domain.meetup.service.MeetupService;
+import com.fesi6.team1.study_group.domain.meetup.service.MeetupUserService;
 import com.fesi6.team1.study_group.domain.user.dto.*;
 import com.fesi6.team1.study_group.domain.user.entity.LoginType;
 import com.fesi6.team1.study_group.domain.user.entity.User;
 import com.fesi6.team1.study_group.domain.user.entity.UserTag;
-import com.fesi6.team1.study_group.domain.user.repository.UserFavoriteRepository;
 import com.fesi6.team1.study_group.domain.user.repository.UserRepository;
 import com.fesi6.team1.study_group.global.common.s3.S3FileService;
 import com.fesi6.team1.study_group.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,8 +31,8 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserFavoriteRepository userFavoriteRepository;
-    private final MeetupRepository meetupRepository;
+    private final UserFavoriteService userFavoriteService;
+    private final MeetupUserService meetupUserService;
     private final JwtTokenProvider jwtTokenProvider;
     private final S3FileService s3FileService;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -201,30 +204,21 @@ public class UserService {
         user.setProfileImg(basePath + uploadedFileName);
     }
 
-    public List<UserMeetupResponseDTO> getUserMeetupsByType(Long userId,Long profileUserId, String type) {
-        // 1. type에 맞는 모임 조회
-        List<Meetup> meetups;
+    public MeetupListResponseDTO getUserMeetupsByType(Long profileUserId, MeetingType meetingType, int page, int limit) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 컬럼을 기준으로 정렬
+        Page<Meetup> meetupPage = meetupUserService.findByUserIdAndType(profileUserId, meetingType, pageable);
 
-        if ("study".equalsIgnoreCase(type)) {
-            meetups = meetupRepository.findByMeetingType(MeetingType.STUDY);
-        } else if ("TUTORING".equalsIgnoreCase(type)) {
-            meetups = meetupRepository.findByMeetingType(MeetingType.TUTORING);
-        } else {
-            throw new IllegalArgumentException("Invalid meetup type");
-        }
-
-        // 2. 모임 정보를 DTO로 변환하여 반환
-        return meetups.stream()
-                .map(meetup -> {
-                    // 각 모임에 대해 isFavorite 계산
-                    boolean isFavorite = checkIfUserFavorite(userId, meetup.getId());
-                    return new UserMeetupResponseDTO(meetup, isFavorite, userId, profileUserId);
-                })
+        List<MeetupResponseDTO> meetupResponseDTOList = meetupPage.getContent().stream()
+                .map(meetup -> new MeetupResponseDTO(meetup)) // Meetup -> MeetupResponseDTO로 변환하는 부분
                 .collect(Collectors.toList());
-    }
 
-    private boolean checkIfUserFavorite(Long userId, Long meetupId) {
-        return userFavoriteRepository.findByUserIdAndMeetupId(userId, meetupId).isPresent();
+        Integer nextPage = meetupPage.hasNext() ? page + 1 : -1;
+        boolean isLast = meetupPage.isLast();
+        Map<String, Object> additionalData = new HashMap<>();
+        additionalData.put("nextPage", nextPage);
+        additionalData.put("isLast", isLast);
+
+        return new MeetupListResponseDTO(meetupResponseDTOList, additionalData);
     }
 
 }

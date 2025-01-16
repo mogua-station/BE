@@ -14,4 +14,5 @@ public interface MeetupRepository extends JpaRepository<Meetup, Long> {
     List<Meetup> findByMeetingType(MeetingType meetingType);
 
     Page<Meetup> findAll(Specification<Meetup> spec, Pageable pageable);
+
 }
