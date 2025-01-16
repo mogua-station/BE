@@ -97,8 +97,6 @@ public class UserService {
         );
     }
 
-
-
     public UserLoginResponseDTO customLogin(UserLoginRequestDTO request) throws IOException {
         // 사용자가 입력한 이메일을 기반으로 User 찾기
         User user = userRepository.findByEmail(request.getEmail())
@@ -203,7 +201,7 @@ public class UserService {
         user.setProfileImg(basePath + uploadedFileName);
     }
 
-    public List<UserMeetupResponseDTO> getUserMeetupsByType(Long userId, String type) {
+    public List<UserMeetupResponseDTO> getUserMeetupsByType(Long userId,Long profileUserId, String type) {
         // 1. type에 맞는 모임 조회
         List<Meetup> meetups;
 
@@ -220,7 +218,7 @@ public class UserService {
                 .map(meetup -> {
                     // 각 모임에 대해 isFavorite 계산
                     boolean isFavorite = checkIfUserFavorite(userId, meetup.getId());
-                    return new UserMeetupResponseDTO(meetup, isFavorite);
+                    return new UserMeetupResponseDTO(meetup, isFavorite, userId, profileUserId);
                 })
                 .collect(Collectors.toList());
     }

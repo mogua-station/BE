@@ -74,19 +74,22 @@ public class UserController {
      **/
     @PostMapping("/sign-in")
     public ResponseEntity<ApiResponse<?>> login(@RequestBody UserLoginRequestDTO request) throws IOException {
-        // 로그인 서비스 호출 (사용자 정보와 JWT 포함)
+        // 로그인 서비스 호출 (JWT 토큰과 사용자 정보 반환)
         UserLoginResponseDTO userResponse = userService.customLogin(request);
 
-        // 응답 데이터 준비
+        // 사용자 정보를 "user"로 감싼 Map 생성 (JWT 제거)
         Map<String, Object> responseData = Map.of(
-                "user", userResponse
+                "user", Map.of(
+                        "email", userResponse.getEmail(),
+                        "name", userResponse.getName()
+                )
         );
-
         // JWT 포함하여 응답 반환
         return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + userResponse.getJwtToken())  // 헤더에 JWT 추가
-                .body(ApiResponse.successResponse(responseData));  // 사용자 정보 포함된 데이터 반환
+                .header("Authorization", "Bearer " + userResponse.getJwtToken()) // JWT는 헤더에만 포함
+                .body(ApiResponse.successResponse(responseData)); // 사용자 정보만 본문에 반환
     }
+
 
     /**
      *
@@ -141,7 +144,7 @@ public class UserController {
             @PathVariable("type") String type) {
 
         Long userId = userDetails.getUserId();
-        List<UserMeetupResponseDTO> meetups = userService.getUserMeetupsByType(userId, type);
+        List<UserMeetupResponseDTO> meetups = userService.getUserMeetupsByType(userId,profileUserId, type);
 
         return ResponseEntity.ok().body(ApiResponse.successResponse(meetups));
     }

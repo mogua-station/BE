@@ -18,8 +18,10 @@ public class UserMeetupResponseDTO {
     private final LocalDateTime meetingEndDate;
     private final String thumbnail;
     private final boolean isFavorite;
+    private final boolean isOwnId;
 
-    public UserMeetupResponseDTO(Meetup meetup, boolean isFavorite) {
+
+    public UserMeetupResponseDTO(Meetup meetup, boolean isFavorite, Long userId, Long profileUserId) {
         this.title = meetup.getTitle();
         this.location = meetup.isOnline() ? null : meetup.getLocation();
         this.currentParticipants = meetup.getMeetupUsers().size(); // 현재 참가자 수
@@ -29,6 +31,7 @@ public class UserMeetupResponseDTO {
         this.meetingEndDate = meetup.getMeetingEndDate();
         this.thumbnail = meetup.getThumbnail();
         this.isFavorite = isFavorite;
+        this.isOwnId = (userId.equals(profileUserId));
     }
 
 }
