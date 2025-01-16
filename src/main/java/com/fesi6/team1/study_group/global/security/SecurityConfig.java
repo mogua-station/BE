@@ -55,15 +55,12 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 허용할 Origin 설정
-        configuration.addAllowedOrigin("http://localhost:3000"); // localhost:3000만 허용
-        // 또는 HTTPS를 사용하는 경우:
-        // configuration.addAllowedOrigin("https://localhost:3000");
+        configuration.addAllowedOrigin("http://localhost:3000"); // 기존 로컬 개발 환경
+        configuration.addAllowedOrigin("https://mogua-g109cgdv1-joshuayeyos-projects.vercel.app"); // 배포된 프론트엔드 도메인
+        // 필요한 다른 도메인도 추가 가능
 
         // 허용할 HTTP 메서드 설정
         configuration.addAllowedMethod("*"); // 모든 메서드 허용
-        // 또는 특정 메서드만 허용 (예: GET, POST):
-        // configuration.addAllowedMethod("GET");
-        // configuration.addAllowedMethod("POST");
 
         // 허용할 헤더 설정
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
@@ -80,6 +77,7 @@ public class SecurityConfig {
 
         return source;
     }
+
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
