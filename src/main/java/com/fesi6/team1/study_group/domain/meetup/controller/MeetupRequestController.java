@@ -18,7 +18,7 @@ public class MeetupRequestController {
 
     /**
      *
-     * 모임 신청
+     * 모임 참여
      *
      */
     @PostMapping("/{meetupId}/join")

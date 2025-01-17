@@ -8,12 +8,13 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class CreateReviewRequestDTO {
+public class UpdateReviewRequestDTO {
 
-    private Long meetupId;
     private int rating;
     private String content;
+    private LocalDateTime reviewUpdateDate;
 
-    public CreateReviewRequestDTO() {
+    public UpdateReviewRequestDTO() {
     }
+
 }

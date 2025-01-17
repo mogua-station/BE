@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class MeetupUserService {
@@ -17,6 +19,10 @@ public class MeetupUserService {
 
     public void save(MeetupUser meetupUser) {
         meetupUserRepository.save(meetupUser);
+    }
+
+    public Optional<MeetupUser> findByMeetupIdAndUserId(Long meetupId, Long userId) {
+        return meetupUserRepository.findByMeetupIdAndUserId(meetupId, userId);
     }
 
     public void leaveMeetup(Long meetupId, Long userId) {
@@ -28,5 +34,6 @@ public class MeetupUserService {
     public Page<Meetup> findByUserIdAndType(Long userId, MeetingType meetingType, Pageable pageable) {
         return meetupUserRepository.findByUserIdAndType(userId, meetingType, pageable);
     }
+
 
 }

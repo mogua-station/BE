@@ -20,4 +20,7 @@ public interface MeetupUserRepository extends JpaRepository<MeetupUser, Long> {
     @Query("SELECT mu.meetup FROM MeetupUser mu WHERE mu.user.id = :userId AND mu.meetup.meetingType = :type")
     Page<Meetup> findByUserIdAndType(Long userId, MeetingType type, Pageable pageable);
 
+
+
+
 }

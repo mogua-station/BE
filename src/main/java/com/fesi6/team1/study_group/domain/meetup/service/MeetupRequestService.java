@@ -28,7 +28,7 @@ public class MeetupRequestService {
             throw new IllegalStateException("모집 기간이 종료되었습니다");
         }
 
-        boolean alreadyRequested = meetupRequestRepository.existsByMeetupIdAndUserId(meetupId, userId);
+        boolean alreadyRequested = meetupUserService.findByMeetupIdAndUserId(meetupId, userId).isPresent();
         if (alreadyRequested) {
             throw new IllegalStateException("이미 이 모임에 신청하셨습니다");
         }
