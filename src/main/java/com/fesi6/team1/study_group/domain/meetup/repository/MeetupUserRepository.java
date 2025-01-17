@@ -20,7 +20,12 @@ public interface MeetupUserRepository extends JpaRepository<MeetupUser, Long> {
     @Query("SELECT mu.meetup FROM MeetupUser mu WHERE mu.user.id = :userId AND mu.meetup.meetingType = :type")
     Page<Meetup> findByUserIdAndType(Long userId, MeetingType type, Pageable pageable);
 
+    int countByMeetupId(Long meetupId);
 
+    @Query("SELECT mu FROM MeetupUser mu WHERE mu.user.id = :userId AND mu.meetup.meetingType = :meetingType AND mu.hasReview = false")
+    Page<MeetupUser> findByUserIdAndMeetup_MeetingTypeAndHasReviewFalse(Long userId, MeetingType meetingType, Pageable pageable);
 
+    @Query("SELECT mu FROM MeetupUser mu WHERE mu.user.id = :userId AND mu.meetup.meetingType = :meetingType AND mu.hasReview = true")
+    Page<Meetup> findByUserIdAndMeetingTypeAndHasReviewTrue(Long userId, MeetingType meetingType, Pageable pageable);
 
 }

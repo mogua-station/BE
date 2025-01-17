@@ -1,19 +1,19 @@
 package com.fesi6.team1.study_group.domain.meetup.service;
 
-import com.fesi6.team1.study_group.domain.meetup.dto.CreateMeetupRequestDTO;
-import com.fesi6.team1.study_group.domain.meetup.dto.MeetupListResponseDTO;
-import com.fesi6.team1.study_group.domain.meetup.dto.MeetupResponseDTO;
-import com.fesi6.team1.study_group.domain.meetup.dto.UpdateMeetupRequestDTO;
+import com.fesi6.team1.study_group.domain.meetup.dto.*;
 import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
 import com.fesi6.team1.study_group.domain.meetup.entity.Meetup;
 import com.fesi6.team1.study_group.domain.meetup.entity.MeetupLocation;
 import com.fesi6.team1.study_group.domain.meetup.entity.MeetupStatus;
 import com.fesi6.team1.study_group.domain.meetup.repository.MeetupRepository;
 import com.fesi6.team1.study_group.domain.meetup.specification.MeetupSpecification;
+import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTO;
+import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTOList;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
 import com.fesi6.team1.study_group.global.common.s3.S3FileService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,6 +41,10 @@ public class MeetupService {
     public Meetup findById(Long meetupId) {
         return meetupRepository.findById(meetupId)
                 .orElseThrow(() -> new EntityNotFoundException("Meetup not found with ID: " + meetupId));
+    }
+
+    public void save(Meetup meetup) {
+        meetupRepository.save(meetup);
     }
 
     public void saveMeetup(MultipartFile image, CreateMeetupRequestDTO request, Long userId) throws IOException {
@@ -205,4 +210,20 @@ public class MeetupService {
         }
     }
 
+    public UserCreateMeetupResponseDTOList getUserCreateMeetupResponse(Long userId, MeetingType type, Integer page, Integer limit) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 컬럼을 기준으로 정렬
+
+        Page<Meetup> createMeetup = meetupRepository.findByHostIdAndMeetingType(userId, type, pageable);
+
+        List<UserCreateMeetupResponseDTO> userCreateMeetupResponseDTOList = createMeetup.getContent().stream()
+                .map(meetup -> new UserCreateMeetupResponseDTO(meetup))
+                .collect(Collectors.toList());
+
+        Integer nextPage = createMeetup.hasNext() ? page + 1 : -1;
+        boolean isLast = createMeetup.isLast();
+        Map<String, Object> additionalData = new HashMap<>();
+        additionalData.put("nextPage", nextPage);
+        additionalData.put("isLast", isLast);
+        return new UserCreateMeetupResponseDTOList(userCreateMeetupResponseDTOList, additionalData);
+    }
 }

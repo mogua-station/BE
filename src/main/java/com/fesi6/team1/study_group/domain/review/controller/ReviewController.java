@@ -1,20 +1,22 @@
 package com.fesi6.team1.study_group.domain.review.controller;
 
-import com.fesi6.team1.study_group.domain.meetup.dto.MeetupResponseDTO;
+import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
 import com.fesi6.team1.study_group.domain.review.dto.CreateReviewRequestDTO;
 import com.fesi6.team1.study_group.domain.review.dto.ReviewResponseDTO;
 import com.fesi6.team1.study_group.domain.review.dto.ReviewResponseDTOList;
 import com.fesi6.team1.study_group.domain.review.dto.UpdateReviewRequestDTO;
 import com.fesi6.team1.study_group.domain.review.service.ReviewService;
+import com.fesi6.team1.study_group.domain.meetup.dto.UserEligibleReviewResponseDTO;
+import com.fesi6.team1.study_group.domain.meetup.dto.UserEligibleReviewResponseDTOList;
+import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTO;
+import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTOList;
 import com.fesi6.team1.study_group.global.common.response.ApiResponse;
 import com.fesi6.team1.study_group.global.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -90,4 +92,5 @@ public class ReviewController {
         reviewService.deleteReview(reviewId, userId);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Review deleted successfully"));
     }
+
 }

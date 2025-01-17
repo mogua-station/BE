@@ -1,8 +1,11 @@
 package com.fesi6.team1.study_group.domain.user.controller;
 
-import com.fesi6.team1.study_group.domain.meetup.dto.MeetupListResponseDTO;
-import com.fesi6.team1.study_group.domain.meetup.dto.MeetupResponseDTO;
+import com.fesi6.team1.study_group.domain.meetup.dto.*;
 import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
+import com.fesi6.team1.study_group.domain.meetup.service.MeetupService;
+import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTO;
+import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTOList;
+import com.fesi6.team1.study_group.domain.review.service.ReviewService;
 import com.fesi6.team1.study_group.domain.user.dto.*;
 import com.fesi6.team1.study_group.domain.user.service.KakaoService;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
@@ -26,6 +29,8 @@ import static com.fesi6.team1.study_group.global.common.response.ApiResponse.suc
 public class UserController {
 
     private final UserService userService;
+    private final ReviewService reviewService;
+    private final MeetupService meetupService;
     private final KakaoService kakaoService;
 
     /**
@@ -157,29 +162,58 @@ public class UserController {
         return ResponseEntity.ok().body(response);
     }
 
-
     /**
      *
      * 유저 리뷰 조회
      *
      */
-//    @GetMapping("/reviews/{type}/{status}")
-//    public ResponseEntity<List<MyReviewResponseDTO>> getMyReviews(
-//            @AuthenticationPrincipal CustomUserDetails userDetails,
-//            @PathVariable("type") String type,  // 'study' 또는 'tutoring'
-//            @PathVariable("status") String status) { // 'eligible' 또는 'written'
-//
-//        Long userId = userDetails.getUserId();
-//
-//        // 'status'에 따른 분기 처리
-//        if ("eligible".equalsIgnoreCase(status)) {
-//            // 리뷰 작성 가능한 모임 목록 조회
-//            return ResponseEntity.ok().body(reviewService.getEligibleReviews(userId, type));
-//        } else if ("written".equalsIgnoreCase(status)) {
-//            // 사용자가 작성한 리뷰 목록 조회
-//            return ResponseEntity.ok().body(reviewService.getWrittenReviews(userId));
-//        } else {
-//            throw new IllegalArgumentException("Invalid status");
-//        }
-//    }
+    @GetMapping("/{id}/reviews/{type}/eligible")
+    public ResponseEntity<ApiResponse<List<UserEligibleReviewResponseDTO>>> getUserEligibleReviews(
+            @PathVariable("id") Long userId,
+            @PathVariable("type") MeetingType type,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "limit", defaultValue = "10") Integer limit ) {
+
+        UserEligibleReviewResponseDTOList userEligibleReviewResponseDTOList = reviewService.getUserEligibleReviewResponse(userId, type, page, limit);
+
+        ApiResponse<List<UserEligibleReviewResponseDTO>> response = ApiResponse.successResponse(
+                userEligibleReviewResponseDTOList.getEligibleReview(), userEligibleReviewResponseDTOList.getAdditionalData()
+        );
+        return ResponseEntity.ok().body(response);
+    }
+    @GetMapping("/{id}/reviews/{type}/written")
+    public ResponseEntity<ApiResponse<List<UserWrittenReviewResponseDTO>>> getUserWrittenReviews(
+            @PathVariable("id") Long profileUserId,
+            @PathVariable("type") MeetingType type,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "limit", defaultValue = "10") Integer limit ) {
+
+        UserWrittenReviewResponseDTOList userWrittenReviewResponseDTOList = reviewService.getUserWrittenReviewResponse(profileUserId, type, page, limit);
+
+        ApiResponse<List<UserWrittenReviewResponseDTO>> response = ApiResponse.successResponse(
+                userWrittenReviewResponseDTOList.getWrittenReview(), userWrittenReviewResponseDTOList.getAdditionalData()
+        );
+        return ResponseEntity.ok().body(response);
+    }
+
+    /**
+     *
+     * 만든 모임 조회
+     *
+     */
+    @GetMapping("/{id}/meetups/created/{type}")
+    public ResponseEntity<ApiResponse<List<UserCreateMeetupResponseDTO>>> getUserCreateMeetup(
+            @PathVariable("id") Long userId,
+            @PathVariable("type") MeetingType type,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "limit", defaultValue = "10") Integer limit ) {
+
+        UserCreateMeetupResponseDTOList userCreateMeetupResponseDTOList = meetupService.getUserCreateMeetupResponse(userId, type, page, limit);
+
+        ApiResponse<List<UserCreateMeetupResponseDTO>> response = ApiResponse.successResponse(
+                userCreateMeetupResponseDTOList.getUserCreateMeetupList(), userCreateMeetupResponseDTOList.getAdditionalData()
+        );
+        return ResponseEntity.ok().body(response);
+    }
+
 }

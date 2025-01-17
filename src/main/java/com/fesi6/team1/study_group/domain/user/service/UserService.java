@@ -6,6 +6,8 @@ import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
 import com.fesi6.team1.study_group.domain.meetup.entity.Meetup;
 import com.fesi6.team1.study_group.domain.meetup.service.MeetupService;
 import com.fesi6.team1.study_group.domain.meetup.service.MeetupUserService;
+import com.fesi6.team1.study_group.domain.review.entity.Review;
+import com.fesi6.team1.study_group.domain.review.service.ReviewService;
 import com.fesi6.team1.study_group.domain.user.dto.*;
 import com.fesi6.team1.study_group.domain.user.entity.LoginType;
 import com.fesi6.team1.study_group.domain.user.entity.User;
@@ -31,7 +33,6 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserFavoriteService userFavoriteService;
     private final MeetupUserService meetupUserService;
     private final JwtTokenProvider jwtTokenProvider;
     private final S3FileService s3FileService;
@@ -176,12 +177,9 @@ public class UserService {
                     user.getTags().addAll(newTags);
                 });
 
-        // 프로필 이미지 업데이트
         if (file != null) {
             updateProfileImage(user, file);
         }
-
-        // 사용자 정보 저장
         userRepository.save(user);
     }
 
@@ -220,5 +218,4 @@ public class UserService {
 
         return new MeetupListResponseDTO(meetupResponseDTOList, additionalData);
     }
-
 }

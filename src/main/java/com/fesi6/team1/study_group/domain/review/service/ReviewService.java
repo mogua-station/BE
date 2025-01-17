@@ -1,7 +1,6 @@
 package com.fesi6.team1.study_group.domain.review.service;
 
-import com.fesi6.team1.study_group.domain.meetup.dto.MeetupListResponseDTO;
-import com.fesi6.team1.study_group.domain.meetup.dto.MeetupResponseDTO;
+import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
 import com.fesi6.team1.study_group.domain.meetup.entity.Meetup;
 import com.fesi6.team1.study_group.domain.meetup.entity.MeetupUser;
 import com.fesi6.team1.study_group.domain.meetup.service.MeetupService;
@@ -12,6 +11,10 @@ import com.fesi6.team1.study_group.domain.review.dto.ReviewResponseDTOList;
 import com.fesi6.team1.study_group.domain.review.dto.UpdateReviewRequestDTO;
 import com.fesi6.team1.study_group.domain.review.entity.Review;
 import com.fesi6.team1.study_group.domain.review.repository.ReviewRepository;
+import com.fesi6.team1.study_group.domain.meetup.dto.UserEligibleReviewResponseDTO;
+import com.fesi6.team1.study_group.domain.meetup.dto.UserEligibleReviewResponseDTOList;
+import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTO;
+import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTOList;
 import com.fesi6.team1.study_group.domain.user.entity.User;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -103,4 +106,48 @@ public class ReviewService {
 
         return new ReviewResponseDTOList(reviewResponseDTOList, additionalData);
     }
+
+    public Page<Review> findByUserIdAndType(Long userId, MeetingType type, Pageable pageable) {
+        return reviewRepository.findByUserIdAndType(userId, type, pageable);
+    }
+
+    public UserEligibleReviewResponseDTOList getUserEligibleReviewResponse(Long userId, MeetingType type, Integer page, Integer limit) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 기준으로 정렬
+
+        // 유저가 참여한 모임 중 리뷰를 작성하지 않은 모임만 필터링
+        Page<MeetupUser> meetupUserPage = meetupUserService.findByUserIdAndTypeAndHasReviewFalse(userId, type, pageable);
+
+        List<UserEligibleReviewResponseDTO> userEligibleReviewResponseDTOList = meetupUserPage.getContent().stream()
+                .map(meetupUser -> new UserEligibleReviewResponseDTO(
+                        meetupUser.getMeetup(),
+                        meetupUserService.getParticipantsCount(meetupUser.getMeetup().getId())))
+                .collect(Collectors.toList());
+
+        Integer nextPage = meetupUserPage.hasNext() ? page + 1 : -1; // 다음 페이지 확인
+        boolean isLast = meetupUserPage.isLast(); // 마지막 페이지인지 확인
+        Map<String, Object> additionalData = new HashMap<>();
+        additionalData.put("nextPage", nextPage);
+        additionalData.put("isLast", isLast);
+
+        return new UserEligibleReviewResponseDTOList(userEligibleReviewResponseDTOList, additionalData);
+    }
+
+    public UserWrittenReviewResponseDTOList getUserWrittenReviewResponse(Long userId, MeetingType type, Integer page, Integer limit) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 컬럼을 기준으로 정렬
+
+        // 유저가 작성한 리뷰만 가져옴
+        Page<Review> reviewPage = reviewRepository.findByUserIdAndMeetingType(userId, type, pageable);
+
+        List<UserWrittenReviewResponseDTO> userWrittenReviewResponseDTOList = reviewPage.getContent().stream()
+                .map(review ->  new UserWrittenReviewResponseDTO(review))
+                .collect(Collectors.toList());
+
+        Integer nextPage = reviewPage.hasNext() ? page + 1 : -1;
+        boolean isLast = reviewPage.isLast();
+        Map<String, Object> additionalData = new HashMap<>();
+        additionalData.put("nextPage", nextPage);
+        additionalData.put("isLast", isLast);
+        return new UserWrittenReviewResponseDTOList(userWrittenReviewResponseDTOList, additionalData);
+    }
+
 }

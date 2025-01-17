@@ -50,9 +50,15 @@ public class MeetupRequestService {
                 .updatedAt(LocalDateTime.now())
                 .build();
         meetupUserService.save(meetupUser);
+
+        meetup.setParticipantCount(meetup.getParticipantCount() + 1);
+        meetupService.save(meetup);
     }
 
     public void leaveMeetup(Long meetupId, Long userId) {
         meetupUserService.leaveMeetup(meetupId, userId);
+        Meetup meetup = meetupService.findById(meetupId);
+        meetup.setParticipantCount(meetup.getParticipantCount() + 1);
+        meetupService.save(meetup);
     }
 }
