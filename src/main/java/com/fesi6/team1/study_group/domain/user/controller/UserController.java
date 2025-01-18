@@ -216,4 +216,24 @@ public class UserController {
         return ResponseEntity.ok().body(response);
     }
 
+//    /**
+//     *
+//     * 수강평 조회
+//     *
+//     */
+//    @GetMapping("/{id}/meetups/created/{type}")
+//    public ResponseEntity<ApiResponse<List<UserCreateMeetupResponseDTO>>> getStudentReviewsForMyTutoring(
+//            @PathVariable("id") Long userId,
+//            @PathVariable("type") MeetingType type,
+//            @RequestParam(value = "page", defaultValue = "0") Integer page,
+//            @RequestParam(value = "limit", defaultValue = "10") Integer limit ) {
+//
+//        UserCreateMeetupResponseDTOList userCreateMeetupResponseDTOList = meetupService.getUserCreateMeetupResponse(userId, type, page, limit);
+//
+//        ApiResponse<List<UserCreateMeetupResponseDTO>> response = ApiResponse.successResponse(
+//                userCreateMeetupResponseDTOList.getUserCreateMeetupList(), userCreateMeetupResponseDTOList.getAdditionalData()
+//        );
+//        return ResponseEntity.ok().body(response);
+//    }
+
 }

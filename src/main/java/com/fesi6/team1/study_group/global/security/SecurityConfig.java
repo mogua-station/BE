@@ -27,7 +27,10 @@ public class SecurityConfig {
             "/user/sign-up",
             "/user/sign-in",
             "/meetups/list",
-            "/home/health"
+            "/user/*/meetups/participating/**",
+            "/user/*/reviews/**",
+            "/user/*/meetups/created/**",
+            "/user/reviews/received"
     };
 
     @Bean
