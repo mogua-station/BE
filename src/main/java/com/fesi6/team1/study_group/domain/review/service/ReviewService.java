@@ -15,15 +15,20 @@ import com.fesi6.team1.study_group.domain.meetup.dto.UserEligibleReviewResponseD
 import com.fesi6.team1.study_group.domain.meetup.dto.UserEligibleReviewResponseDTOList;
 import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTO;
 import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTOList;
+import com.fesi6.team1.study_group.domain.user.dto.UserTutoringReviewResponseDTO;
+import com.fesi6.team1.study_group.domain.user.dto.UserTutoringReviewResponseDTOList;
 import com.fesi6.team1.study_group.domain.user.entity.User;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
+import com.fesi6.team1.study_group.global.common.s3.S3FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +42,15 @@ public class ReviewService {
     private final MeetupService meetupService;
     private final MeetupUserService meetupUserService;
     private final UserService userService;
+    private final S3FileService s3FileService;
 
-    public void saveReview(CreateReviewRequestDTO request, Long userId) {
+    public void saveReview(CreateReviewRequestDTO request, Long userId, MultipartFile image) throws IOException {
+
+        String path = "reviewImage";
+        String fileName;
+        String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/reviewImage/";
+        String uploadedFileName = s3FileService.uploadFile(image, path);
+        fileName = basePath + uploadedFileName; // 전체 경로 포함한 파일 이름 생성
 
         Long meetupId = request.getMeetupId();
         MeetupUser meetupUser = meetupUserService.findByMeetupIdAndUserId(meetupId, userId)
@@ -56,19 +68,33 @@ public class ReviewService {
                 .content(request.getContent())
                 .rating(request.getRating())
                 .build();
+        review.setThumbnail(fileName);
         reviewRepository.save(review);
 
         meetupUser.setHasReview(true);
         meetupUserService.save(meetupUser);
     }
 
-    public void updateReview(UpdateReviewRequestDTO request, Long reviewId, Long userId) {
+    public void updateReview(UpdateReviewRequestDTO request, Long reviewId, Long userId, MultipartFile image) throws IOException {
 
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));;
         if (!review.getUser().getId().equals(userId)) {
             throw new IllegalStateException("리뷰를 수정할 권한이 없습니다");
         }
+        if (image != null) {
+            String path = "reviewImage";
+            String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/reviewImage/";
+            String currentThumbnail = review.getThumbnail();
 
+            boolean isDefaultImage = currentThumbnail != null && currentThumbnail.equals(basePath + "defaultProfileImages.png");
+
+            if (!isDefaultImage && currentThumbnail != null) {
+                String oldFilePath = currentThumbnail.replace(basePath, ""); // S3 경로에서 파일 경로 추출
+                s3FileService.deleteFile(oldFilePath);
+            }
+            String uploadedFileName = s3FileService.uploadFile(image, path);
+            review.setThumbnail(basePath + uploadedFileName);
+        }
         review.setContent(request.getContent());
         review.setRating(request.getRating());
         reviewRepository.save(review);
@@ -81,6 +107,10 @@ public class ReviewService {
         if (!review.getUser().getId().equals(userId)) {
             throw new IllegalStateException("리뷰를 삭제할 권한이 없습니다.");
         }
+        String currentThumbnail = review.getThumbnail();
+        String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/reviewImage/";
+        String oldFilePath = currentThumbnail.replace(basePath, ""); // S3 경로에서 파일 경로 추출
+        s3FileService.deleteFile(oldFilePath);
         reviewRepository.delete(review);
 
         MeetupUser meetupUser = meetupUserService.findByMeetupIdAndUserId(
@@ -148,6 +178,31 @@ public class ReviewService {
         additionalData.put("nextPage", nextPage);
         additionalData.put("isLast", isLast);
         return new UserWrittenReviewResponseDTOList(userWrittenReviewResponseDTOList, additionalData);
+    }
+
+    public UserTutoringReviewResponseDTOList getUserTutoringReview(Long userId, Integer page, Integer limit) {
+        // Pageable 설정 (페이지, 한 페이지에 보여줄 개수, 정렬 기준)
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 기준으로 정렬
+        MeetingType type = MeetingType.valueOf("TUTORING");
+        // 튜터링 모임에 대한 리뷰를 가져오기 위한 쿼리
+        Page<Review> reviewPage = reviewRepository.findByHostIdAndMeetingType(userId, type, pageable);
+
+        // 3. 리뷰를 DTO로 변환
+        List<UserTutoringReviewResponseDTO> userTutoringReviewResponseDTOList = reviewPage.getContent().stream()
+                .map(review -> new UserTutoringReviewResponseDTO(review)) // 리뷰 -> DTO 변환
+                .collect(Collectors.toList());
+
+        // 4. 페이지 정보 추가
+        Integer nextPage = reviewPage.hasNext() ? page + 1 : -1; // 다음 페이지 번호 계산
+        boolean isLast = reviewPage.isLast(); // 마지막 페이지 여부 확인
+
+        // 5. 추가 데이터 (nextPage, isLast) 포함
+        Map<String, Object> additionalData = new HashMap<>();
+        additionalData.put("nextPage", nextPage);
+        additionalData.put("isLast", isLast);
+
+        // 6. DTO 리스트와 추가 데이터 반환
+        return new UserTutoringReviewResponseDTOList(userTutoringReviewResponseDTOList, additionalData);
     }
 
 }

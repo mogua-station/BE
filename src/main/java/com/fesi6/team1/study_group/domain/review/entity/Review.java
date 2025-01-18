@@ -34,6 +34,8 @@ public class Review {
     @Column(nullable = false)
     private int rating;
 
+    private String thumbnail;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -58,6 +60,7 @@ public class Review {
         this.user = user;
         this.content = content;
         this.rating = rating;
+        this.thumbnail = null;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }

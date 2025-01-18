@@ -19,4 +19,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("SELECT r FROM Review r JOIN Meetup m ON r.meetup.id = m.id WHERE r.user.id = :userId AND m.meetingType = :type")
     Page<Review> findByUserIdAndMeetingType(@Param("userId") Long userId, @Param("type") MeetingType type, Pageable pageable);
+
+    @Query("SELECT r FROM Review r JOIN Meetup m ON r.meetup.id = m.id WHERE m.host.id = :userId AND m.meetingType = :type")
+    Page<Review> findByHostIdAndMeetingType(@Param("userId") Long userId, @Param("type") MeetingType type, Pageable pageable);
+
 }

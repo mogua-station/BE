@@ -1,15 +1,10 @@
 package com.fesi6.team1.study_group.domain.review.controller;
 
-import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
 import com.fesi6.team1.study_group.domain.review.dto.CreateReviewRequestDTO;
 import com.fesi6.team1.study_group.domain.review.dto.ReviewResponseDTO;
 import com.fesi6.team1.study_group.domain.review.dto.ReviewResponseDTOList;
 import com.fesi6.team1.study_group.domain.review.dto.UpdateReviewRequestDTO;
 import com.fesi6.team1.study_group.domain.review.service.ReviewService;
-import com.fesi6.team1.study_group.domain.meetup.dto.UserEligibleReviewResponseDTO;
-import com.fesi6.team1.study_group.domain.meetup.dto.UserEligibleReviewResponseDTOList;
-import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTO;
-import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTOList;
 import com.fesi6.team1.study_group.global.common.response.ApiResponse;
 import com.fesi6.team1.study_group.global.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,10 +32,11 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity<?> createReview(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody CreateReviewRequestDTO request) throws IOException {
+            @RequestPart(required = false) MultipartFile image,
+            @RequestPart CreateReviewRequestDTO request) throws IOException {
 
         Long userId = userDetails.getUserId();
-        reviewService.saveReview(request, userId);
+        reviewService.saveReview(request, userId, image);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Review created successfully"));
     }
 
@@ -71,10 +68,11 @@ public class ReviewController {
     public ResponseEntity<?> updateReview(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long reviewId,
-            @RequestBody UpdateReviewRequestDTO request) throws IOException {
+            @RequestPart(required = false) MultipartFile image,
+            @RequestPart UpdateReviewRequestDTO request) throws IOException {
 
         Long userId = userDetails.getUserId();
-        reviewService.updateReview(request, reviewId, userId);
+        reviewService.updateReview(request, reviewId, userId, image);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Review updated successfully"));
     }
 

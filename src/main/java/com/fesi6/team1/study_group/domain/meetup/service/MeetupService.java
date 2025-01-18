@@ -213,14 +213,14 @@ public class MeetupService {
     public UserCreateMeetupResponseDTOList getUserCreateMeetupResponse(Long userId, MeetingType type, Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 컬럼을 기준으로 정렬
 
-        Page<Meetup> createMeetup = meetupRepository.findByHostIdAndMeetingType(userId, type, pageable);
+        Page<Meetup> wishlistMeetup = meetupRepository.findByHostIdAndMeetingType(userId, type, pageable);
 
-        List<UserCreateMeetupResponseDTO> userCreateMeetupResponseDTOList = createMeetup.getContent().stream()
+        List<UserCreateMeetupResponseDTO> userCreateMeetupResponseDTOList = wishlistMeetup.getContent().stream()
                 .map(meetup -> new UserCreateMeetupResponseDTO(meetup))
                 .collect(Collectors.toList());
 
-        Integer nextPage = createMeetup.hasNext() ? page + 1 : -1;
-        boolean isLast = createMeetup.isLast();
+        Integer nextPage = wishlistMeetup.hasNext() ? page + 1 : -1;
+        boolean isLast = wishlistMeetup.isLast();
         Map<String, Object> additionalData = new HashMap<>();
         additionalData.put("nextPage", nextPage);
         additionalData.put("isLast", isLast);
