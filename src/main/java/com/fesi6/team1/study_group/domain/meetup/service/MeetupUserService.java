@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -44,10 +45,8 @@ public class MeetupUserService {
         return meetupUserRepository.findByUserIdAndMeetup_MeetingTypeAndHasReviewFalse(userId, type, pageable);
     }
 
-    public Page<Meetup> findByUserIdAndTypeAndHasReviewTrue(Long userId, MeetingType type, Pageable pageable) {
-        // 유저가 참여한 모임 중 리뷰를 작성한 모임을 조회하는 쿼리
-        return meetupUserRepository.findByUserIdAndMeetingTypeAndHasReviewTrue(userId, type, pageable);
+    public Page<MeetupUser> findEligibleReviews(Long userId, MeetingType type, Pageable pageable) {
+        LocalDateTime fiveDaysAgo = LocalDateTime.now().minusDays(5);
+        return meetupUserRepository.findEligibleReviews(userId, type, fiveDaysAgo, pageable);
     }
-
-
 }

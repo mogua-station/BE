@@ -7,7 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface MeetupUserRepository extends JpaRepository<MeetupUser, Long> {
@@ -27,5 +29,18 @@ public interface MeetupUserRepository extends JpaRepository<MeetupUser, Long> {
 
     @Query("SELECT mu FROM MeetupUser mu WHERE mu.user.id = :userId AND mu.meetup.meetingType = :meetingType AND mu.hasReview = true")
     Page<Meetup> findByUserIdAndMeetingTypeAndHasReviewTrue(Long userId, MeetingType meetingType, Pageable pageable);
+
+    @Query("SELECT mu FROM MeetupUser mu " +
+            "JOIN mu.meetup m " +
+            "WHERE mu.user.id = :userId " +
+            "AND mu.hasReview = false " +
+            "AND m.meetingType = :type " +
+            "AND m.meetingEndDate <= CURRENT_TIMESTAMP " +
+            "AND m.meetingEndDate >= :fiveDaysAgo")
+    Page<MeetupUser> findEligibleReviews(@Param("userId") Long userId,
+                                         @Param("type") MeetingType type,
+                                         @Param("fiveDaysAgo") LocalDateTime fiveDaysAgo,
+                                         Pageable pageable);
+
 
 }

@@ -144,8 +144,8 @@ public class ReviewService {
     public UserEligibleReviewResponseDTOList getUserEligibleReviewResponse(Long userId, MeetingType type, Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 기준으로 정렬
 
-        // 유저가 참여한 모임 중 리뷰를 작성하지 않은 모임만 필터링
-        Page<MeetupUser> meetupUserPage = meetupUserService.findByUserIdAndTypeAndHasReviewFalse(userId, type, pageable);
+        // 종료된 모임 중 리뷰 작성 가능 데이터 필터링
+        Page<MeetupUser> meetupUserPage = meetupUserService.findEligibleReviews(userId, type, pageable);
 
         List<UserEligibleReviewResponseDTO> userEligibleReviewResponseDTOList = meetupUserPage.getContent().stream()
                 .map(meetupUser -> new UserEligibleReviewResponseDTO(
