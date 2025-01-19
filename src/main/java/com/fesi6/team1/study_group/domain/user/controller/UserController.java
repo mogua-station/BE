@@ -88,8 +88,10 @@ public class UserController {
         // 사용자 정보를 "user"로 감싼 Map 생성 (JWT 제거)
         Map<String, Object> responseData = Map.of(
                 "user", Map.of(
+                        "userId",userResponse.getId(),
                         "email", userResponse.getEmail(),
-                        "name", userResponse.getName()
+                        "name", userResponse.getName(),
+                        "profileImg",userResponse.getProfileImg()
                 )
         );
         // JWT 포함하여 응답 반환
@@ -221,13 +223,12 @@ public class UserController {
      * 수강평 조회
      *
      */
-    @GetMapping("/reviews/received")
+    @GetMapping("/{id}/reviews/received")
     public ResponseEntity<ApiResponse<List<UserTutoringReviewResponseDTO>>> getStudentReviewsForMyTutoring(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("id") Long userId,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit ) {
 
-        Long userId = userDetails.getUserId();
         UserTutoringReviewResponseDTOList userTutoringReviewResponseDTOList = reviewService.getUserTutoringReview(userId, page, limit);
         ApiResponse<List<UserTutoringReviewResponseDTO>> response = ApiResponse.successResponse(
                 userTutoringReviewResponseDTOList.getUserTutoringReview(), userTutoringReviewResponseDTOList.getAdditionalData()
