@@ -215,8 +215,11 @@ public class MeetupService {
 
         Page<Meetup> wishlistMeetup = meetupRepository.findByHostIdAndMeetingType(userId, type, pageable);
 
+        // 상태 업데이트
+        wishlistMeetup.getContent().forEach(Meetup::updateStatusIfNeeded);
+
         List<UserCreateMeetupResponseDTO> userCreateMeetupResponseDTOList = wishlistMeetup.getContent().stream()
-                .map(meetup -> new UserCreateMeetupResponseDTO(meetup))
+                .map(UserCreateMeetupResponseDTO::new) // 생성자를 통해 DTO로 변환
                 .collect(Collectors.toList());
 
         Integer nextPage = wishlistMeetup.hasNext() ? page + 1 : -1;
@@ -226,4 +229,5 @@ public class MeetupService {
         additionalData.put("isLast", isLast);
         return new UserCreateMeetupResponseDTOList(userCreateMeetupResponseDTOList, additionalData);
     }
+
 }
