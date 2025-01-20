@@ -59,8 +59,8 @@ public class SecurityConfig {
 
         // 허용할 Origin 설정
         configuration.addAllowedOrigin("http://localhost:3000"); // 기존 로컬 개발 환경
-        configuration.addAllowedOrigin("https://mogua-g109cgdv1-joshuayeyos-projects.vercel.app"); // 배포된 프론트엔드 도메인
-        // 필요한 다른 도메인도 추가 가능
+        configuration.addAllowedOrigin("https://mogua-g109cgdv1-joshuayeyos-projects.vercel.app");
+        configuration.addAllowedOrigin("https://mogua.vercel.app/");
 
         // 허용할 HTTP 메서드 설정
         configuration.addAllowedMethod("*"); // 모든 메서드 허용
