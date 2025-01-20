@@ -32,7 +32,7 @@ public class UserTutoringReviewResponseDTO {
         rating = review.getRating();
         meetupId = review.getMeetup().getId();
         title = review.getMeetup().getTitle();
-        content = review.getMeetup().getContent();
+        content = review.getContent();
         meetingEndDate = review.getMeetup().getMeetingEndDate();
         reviewThumbnail = review.getThumbnail();
         reviewDate = review.getCreatedAt();
