@@ -29,7 +29,7 @@ public class MeetupResponseDTO {
     private final String hostNickname;
     private final Long hostId;
     private final List<ParticipantDTO> participants;
-    private final MeetupStatus status;
+    private final MeetupStatus meetupStatus;
 
     public MeetupResponseDTO(Meetup meetup) {
         this.meetupId = meetup.getId();
@@ -58,7 +58,7 @@ public class MeetupResponseDTO {
                         meetupUser.getUser().getProfileImg()
                 ))
                 .collect(Collectors.toList());
-        this.status = meetup.getStatus();
+        this.meetupStatus = meetup.getStatus();
     }
 }
 
