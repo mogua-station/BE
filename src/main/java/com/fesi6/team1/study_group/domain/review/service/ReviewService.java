@@ -148,9 +148,17 @@ public class ReviewService {
         Page<MeetupUser> meetupUserPage = meetupUserService.findEligibleReviews(userId, type, pageable);
 
         List<UserEligibleReviewResponseDTO> userEligibleReviewResponseDTOList = meetupUserPage.getContent().stream()
-                .map(meetupUser -> new UserEligibleReviewResponseDTO(
-                        meetupUser.getMeetup(),
-                        meetupUserService.getParticipantsCount(meetupUser.getMeetup().getId())))
+                .map(meetupUser -> {
+                    Meetup meetup = meetupUser.getMeetup();
+                    // 상태 업데이트
+                    meetup.updateStatusIfNeeded(); // 상태 업데이트
+
+                    // UserEligibleReviewResponseDTO 생성
+                    return new UserEligibleReviewResponseDTO(
+                            meetup,
+                            meetupUserService.getParticipantsCount(meetup.getId())
+                    );
+                })
                 .collect(Collectors.toList());
 
         Integer nextPage = meetupUserPage.hasNext() ? page + 1 : -1; // 다음 페이지 확인
@@ -161,6 +169,7 @@ public class ReviewService {
 
         return new UserEligibleReviewResponseDTOList(userEligibleReviewResponseDTOList, additionalData);
     }
+
 
     public UserWrittenReviewResponseDTOList getUserWrittenReviewResponse(Long userId, MeetingType type, Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 컬럼을 기준으로 정렬
