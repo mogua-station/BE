@@ -26,11 +26,12 @@ public class SecurityConfig {
             "/user/kakao/**",// 카카오 로그인 콜백 URL
             "/user/sign-up",
             "/user/sign-in",
-            "/meetups/list",
             "/user/*/meetups/participating/**",
             "/user/*/reviews/**",
             "/user/*/meetups/created/**",
-            "/user/reviews/received"
+            "/user/reviews/received",
+            "/meetups/list",
+            "/meetups/*"
     };
 
     @Bean
