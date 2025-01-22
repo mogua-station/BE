@@ -191,7 +191,7 @@ public class ReviewService {
 
     public UserTutoringReviewResponseDTOList getUserTutoringReview(Long userId, Integer page, Integer limit) {
         // Pageable 설정 (페이지, 한 페이지에 보여줄 개수, 정렬 기준)
-        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 기준으로 정렬
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.desc("createdAt"))); // createdAt 기준으로 정렬
         MeetingType type = MeetingType.valueOf("TUTORING");
         // 튜터링 모임에 대한 리뷰를 가져오기 위한 쿼리
         Page<Review> reviewPage = reviewRepository.findByHostIdAndMeetingType(userId, type, pageable);

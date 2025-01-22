@@ -4,6 +4,7 @@ import com.fesi6.team1.study_group.domain.meetup.dto.MeetupListResponseDTO;
 import com.fesi6.team1.study_group.domain.meetup.dto.MeetupResponseDTO;
 import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
 import com.fesi6.team1.study_group.domain.meetup.entity.Meetup;
+import com.fesi6.team1.study_group.domain.meetup.entity.MeetupStatus;
 import com.fesi6.team1.study_group.domain.meetup.service.MeetupService;
 import com.fesi6.team1.study_group.domain.meetup.service.MeetupUserService;
 import com.fesi6.team1.study_group.domain.review.entity.Review;
@@ -202,12 +203,28 @@ public class UserService {
         user.setProfileImg(basePath + uploadedFileName);
     }
 
+    /***
+     *
+     * 유저 모임 조회
+     *
+     ***/
+    // 수정버전
     public MeetupListResponseDTO getUserMeetupsByType(Long profileUserId, MeetingType meetingType, int page, int limit) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 컬럼을 기준으로 정렬
+        Pageable pageable = PageRequest.of(page, limit, Sort.unsorted()); // Pageable에서 기본 정렬을 제거
         Page<Meetup> meetupPage = meetupUserService.findByUserIdAndType(profileUserId, meetingType, pageable);
 
         List<MeetupResponseDTO> meetupResponseDTOList = meetupPage.getContent().stream()
-                .map(meetup -> new MeetupResponseDTO(meetup)) // Meetup -> MeetupResponseDTO로 변환하는 부분
+                .sorted((meetup1, meetup2) -> {
+                    // 먼저, MeetupStatus 순서대로 비교
+                    int statusComparison = compareMeetupStatus(meetup1.getStatus(), meetup2.getStatus());
+                    if (statusComparison != 0) {
+                        return statusComparison;
+                    }
+
+                    // 상태가 같다면, 모임 시작일을 기준으로 비교
+                    return meetup1.getMeetingStartDate().compareTo(meetup2.getMeetingStartDate());
+                })
+                .map(meetup -> new MeetupResponseDTO(meetup))
                 .collect(Collectors.toList());
 
         Integer nextPage = meetupPage.hasNext() ? page + 1 : -1;
@@ -218,4 +235,30 @@ public class UserService {
 
         return new MeetupListResponseDTO(meetupResponseDTOList, additionalData);
     }
+
+    // MeetupStatus를 기준으로 비교하는 헬퍼 메서드
+    private int compareMeetupStatus(MeetupStatus status1, MeetupStatus status2) {
+        // MeetupStatus의 순서를 정의
+        int[] statusOrder = { 0, 1, 2, 3 };  // RECRUITING, BEFORE_START, IN_PROGRESS, COMPLETED 순서
+        return Integer.compare(statusOrder[status1.ordinal()], statusOrder[status2.ordinal()]);
+    }
+
+    // 기존 버전
+//    public MeetupListResponseDTO getUserMeetupsByType(Long profileUserId, MeetingType meetingType, int page, int limit) {
+//        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 컬럼을 기준으로 정렬
+//        Page<Meetup> meetupPage = meetupUserService.findByUserIdAndType(profileUserId, meetingType, pageable);
+//
+//        List<MeetupResponseDTO> meetupResponseDTOList = meetupPage.getContent().stream()
+//                .map(meetup -> new MeetupResponseDTO(meetup)) // Meetup -> MeetupResponseDTO로 변환하는 부분
+//                .collect(Collectors.toList());
+//
+//        Integer nextPage = meetupPage.hasNext() ? page + 1 : -1;
+//        boolean isLast = meetupPage.isLast();
+//        Map<String, Object> additionalData = new HashMap<>();
+//        additionalData.put("nextPage", nextPage);
+//        additionalData.put("isLast", isLast);
+//
+//        return new MeetupListResponseDTO(meetupResponseDTOList, additionalData);
+//    }
+
 }
