@@ -6,7 +6,6 @@ import com.fesi6.team1.study_group.domain.review.dto.ReviewResponseDTOList;
 import com.fesi6.team1.study_group.domain.review.dto.UpdateReviewRequestDTO;
 import com.fesi6.team1.study_group.domain.review.service.ReviewService;
 import com.fesi6.team1.study_group.global.common.response.ApiResponse;
-import com.fesi6.team1.study_group.global.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,18 +30,28 @@ public class ReviewController {
      */
     @PostMapping
     public ResponseEntity<?> createReview(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal Long userId,
             @RequestPart(required = false) MultipartFile image,
             @RequestPart CreateReviewRequestDTO request) throws IOException {
 
-        Long userId = userDetails.getUserId();
         reviewService.saveReview(request, userId, image);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Review created successfully"));
     }
 
     /**
+     * 리뷰 단건 조회
+     */
+    @GetMapping("/{reviewId}")
+    public ResponseEntity<ReviewResponseDTO> getReviews(
+            @PathVariable Long reviewId
+    ) {
+        ReviewResponseDTO response = reviewService.getReview(reviewId);
+        return ResponseEntity.ok().body(response);
+    }
+
+    /**
      *
-     * 리뷰 조회
+     * 리뷰 리스트 조회
      *
      */
     @GetMapping("/{meetupId}")
@@ -66,12 +75,10 @@ public class ReviewController {
      */
     @PatchMapping("/{reviewId}")
     public ResponseEntity<?> updateReview(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long reviewId,
             @RequestPart(required = false) MultipartFile image,
             @RequestPart UpdateReviewRequestDTO request) throws IOException {
-
-        Long userId = userDetails.getUserId();
         reviewService.updateReview(request, reviewId, userId, image);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Review updated successfully"));
     }
@@ -83,10 +90,9 @@ public class ReviewController {
      */
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> deleteReview(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long reviewId) throws IOException {
 
-        Long userId = userDetails.getUserId();
         reviewService.deleteReview(reviewId, userId);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Review deleted successfully"));
     }

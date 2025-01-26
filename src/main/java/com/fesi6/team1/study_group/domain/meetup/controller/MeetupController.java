@@ -6,7 +6,6 @@ import com.fesi6.team1.study_group.domain.meetup.dto.MeetupResponseDTO;
 import com.fesi6.team1.study_group.domain.meetup.dto.UpdateMeetupRequestDTO;
 import com.fesi6.team1.study_group.domain.meetup.service.MeetupService;
 import com.fesi6.team1.study_group.global.common.response.ApiResponse;
-import com.fesi6.team1.study_group.global.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,12 +31,12 @@ public class MeetupController {
      *
      */
     @PostMapping
-    public ResponseEntity<?> CreateMeetups(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<?> CreateMeetups(@AuthenticationPrincipal Long userId,
                                            @RequestPart(required = false) MultipartFile image,
                                            @RequestPart CreateMeetupRequestDTO request) throws IOException {
-        Long userId = userDetails.getUserId();
-        meetupService.saveMeetup(image, request, userId);
-        return ResponseEntity.ok().body(ApiResponse.successWithMessage("Meetup created successfully"));
+        Map<String, Object> responseData = meetupService.saveMeetup(image, request, userId);
+        return ResponseEntity.ok()
+                .body(ApiResponse.successWithDataAndMessage(responseData, "Meetup created successfully"));
     }
 
     /**
@@ -46,11 +46,10 @@ public class MeetupController {
      */
     @PatchMapping("/{meetupId}")
     public ResponseEntity<?> updateMeetups(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal Long userId,
             @PathVariable("meetupId") Long meetupId,
             @RequestPart(required = false) MultipartFile image,
             @RequestPart UpdateMeetupRequestDTO request) throws IOException, IllegalAccessException {
-        Long userId = userDetails.getUserId();
         meetupService.updateMeetup(image, request, userId, meetupId);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Meetup updated successfully"));
     }
@@ -62,9 +61,8 @@ public class MeetupController {
      */
     @DeleteMapping("/{meetupId}")
     public ResponseEntity<?> deleteMeetup(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal Long userId,
             @PathVariable("meetupId") Long meetupId) throws IllegalAccessException {
-        Long userId = userDetails.getUserId();
         meetupService.deleteMeetup(userId, meetupId);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Meetup deleted successfully"));
     }

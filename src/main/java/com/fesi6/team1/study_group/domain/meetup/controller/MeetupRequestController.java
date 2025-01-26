@@ -3,7 +3,6 @@ package com.fesi6.team1.study_group.domain.meetup.controller;
 
 import com.fesi6.team1.study_group.domain.meetup.service.MeetupRequestService;
 import com.fesi6.team1.study_group.global.common.response.ApiResponse;
-import com.fesi6.team1.study_group.global.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,9 +21,8 @@ public class MeetupRequestController {
      *
      */
     @PostMapping("/{meetupId}/join")
-    public ResponseEntity<?> createMeetupRequest(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<?> createMeetupRequest(@AuthenticationPrincipal Long userId,
                                                  @PathVariable Long meetupId) {
-        Long userId = userDetails.getUserId();
         meetupRequestService.requestMeetup(meetupId, userId);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Meetup request created successfully"));
     }
@@ -35,10 +33,9 @@ public class MeetupRequestController {
      *
      */
     @DeleteMapping("/{meetupId}/leave")
-    public ResponseEntity<ApiResponse<?>> leaveMeetup(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<ApiResponse<?>> leaveMeetup(@AuthenticationPrincipal Long userId,
                                                       @PathVariable Long meetupId) {
 
-        Long userId = userDetails.getUserId();
         meetupRequestService.leaveMeetup(meetupId, userId);
         return ResponseEntity.ok(ApiResponse.successWithMessage("Successfully left the meetup"));
     }

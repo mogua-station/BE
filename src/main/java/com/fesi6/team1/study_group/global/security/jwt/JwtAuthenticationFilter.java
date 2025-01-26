@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
@@ -22,31 +23,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String accessToken = getJwtFromRequest(request); // JWT 추출
+        String accessToken = getJwtFromRequest(request);
 
-        if (accessToken != null && jwtTokenProvider.validateAccessToken(accessToken)) { // accessToken 유효성 체크
-            Long userId = jwtTokenProvider.getUserIdFromAccessToken(accessToken); // accessToken에서 userId 추출
+        if (accessToken != null && jwtTokenProvider.validateAccessToken(accessToken)) {
+            Long userId = jwtTokenProvider.getUserIdFromAccessToken(accessToken);
 
-            // CustomUserDetails로 인증 객체 생성
-            CustomUserDetails userDetails = new CustomUserDetails(userId);
+            // Principal로 userId 설정
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
 
-            // 인증 정보 설정
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } else if (accessToken != null && !jwtTokenProvider.validateAccessToken(accessToken)) {
-            // accessToken이 만료된 경우, refreshToken 확인
-            String refreshToken = request.getHeader("Refresh-Token");  // 헤더에서 refreshToken 추출
+            String refreshToken = request.getHeader("Refresh-Token");
 
             if (refreshToken != null && jwtTokenProvider.validateRefreshToken(refreshToken)) {
-                Long userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken); // refreshToken에서 userId 추출
+                Long userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
 
-                // CustomUserDetails로 인증 객체 생성
-                CustomUserDetails userDetails = new CustomUserDetails(userId);
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
 
-                // 인증 정보 설정
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 // 새로운 accessToken 발급 후 response에 추가 (선택 사항)
@@ -54,8 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 response.setHeader("Authorization", "Bearer " + newAccessToken);
             }
         }
-
-        filterChain.doFilter(request, response); // 필터 체인 진행
+        filterChain.doFilter(request, response);
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {

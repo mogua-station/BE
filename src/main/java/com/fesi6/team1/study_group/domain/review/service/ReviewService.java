@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,13 @@ public class ReviewService {
         meetupUser.setHasReview(true);
         meetupUserService.save(meetupUser);
     }
+
+    public ReviewResponseDTO getReview(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다. ID: " + reviewId));
+        return new ReviewResponseDTO(review);
+    }
+
 
     public void updateReview(UpdateReviewRequestDTO request, Long reviewId, Long userId, MultipartFile image) throws IOException {
 
@@ -178,7 +186,13 @@ public class ReviewService {
         Page<Review> reviewPage = reviewRepository.findByUserIdAndMeetingType(userId, type, pageable);
 
         List<UserWrittenReviewResponseDTO> userWrittenReviewResponseDTOList = reviewPage.getContent().stream()
-                .map(review ->  new UserWrittenReviewResponseDTO(review))
+                .map(review -> {
+                    // 모임 종료일 + 5일 이내면 isEditable을 true로 설정
+                    LocalDateTime reviewPeriodEnd = review.getMeetup().getMeetingEndDate().plusDays(5);
+                    boolean isEditable = review.getCreatedAt().isBefore(reviewPeriodEnd);
+                    review.setEditable(isEditable); // isEditable 값 갱신
+                    return new UserWrittenReviewResponseDTO(review);
+                })
                 .collect(Collectors.toList());
 
         Integer nextPage = reviewPage.hasNext() ? page + 1 : -1;
@@ -188,6 +202,7 @@ public class ReviewService {
         additionalData.put("isLast", isLast);
         return new UserWrittenReviewResponseDTOList(userWrittenReviewResponseDTOList, additionalData);
     }
+
 
     public UserTutoringReviewResponseDTOList getUserTutoringReview(Long userId, Integer page, Integer limit) {
         // Pageable 설정 (페이지, 한 페이지에 보여줄 개수, 정렬 기준)

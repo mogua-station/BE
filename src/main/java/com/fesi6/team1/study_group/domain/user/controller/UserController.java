@@ -10,7 +10,6 @@ import com.fesi6.team1.study_group.domain.user.dto.*;
 import com.fesi6.team1.study_group.domain.user.service.KakaoService;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
 import com.fesi6.team1.study_group.global.common.response.ApiResponse;
-import com.fesi6.team1.study_group.global.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -107,10 +106,9 @@ public class UserController {
      *
      **/
     @PatchMapping("/profile/me")
-    public ResponseEntity<ApiResponse<?>> updateMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                               @RequestPart(required = false) MultipartFile image,
-                                                               @RequestPart UpdateProfileRequestDTO request) throws IOException {
-        Long userId = userDetails.getUserId();
+    public ResponseEntity<ApiResponse<?>> updateMyProfile(@AuthenticationPrincipal Long userId,
+                                                          @RequestPart(required = false) MultipartFile image,
+                                                          @RequestPart UpdateProfileRequestDTO request) throws IOException {
         userService.updateMyProfile(userId, image, request);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Profile update successful"));
     }
@@ -121,9 +119,8 @@ public class UserController {
      *
      **/
     @PostMapping("/profile/password")
-    public ResponseEntity<ApiResponse<?>> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                              @RequestBody UpdatePasswordRequestDTO request) throws IOException {
-        Long userId = userDetails.getUserId();
+    public ResponseEntity<ApiResponse<?>> updatePassword(@AuthenticationPrincipal Long userId,
+                                                         @RequestBody UpdatePasswordRequestDTO request) throws IOException {
         userService.updatePassword(userId, request);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Password update successful"));
     }
@@ -136,8 +133,7 @@ public class UserController {
     @GetMapping("/profile/{id}")
     public ResponseEntity<ApiResponse<UserProfileResponseDTO>> findUserProfile(
             @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long myId = userDetails.getUserId();
+            @AuthenticationPrincipal Long myId) {
         UserProfileResponseDTO userProfile = userService.findUserProfile(id, myId);
         return ResponseEntity.ok().body(ApiResponse.successResponse(userProfile));
     }
@@ -149,13 +145,12 @@ public class UserController {
      **/
     @GetMapping("/{profileUserId}/meetups/participating/{type}")
     public ResponseEntity<ApiResponse<List<MeetupResponseDTO>>> getUserMeetups(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @AuthenticationPrincipal Long userId,
             @PathVariable("profileUserId") Long profileUserId,
             @PathVariable("type") MeetingType type,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit ) {
 
-        Long userId = userDetails.getUserId();
         MeetupListResponseDTO meetupListResponseDTO = userService.getUserMeetupsByType(profileUserId, type, page, limit);
 
         ApiResponse<List<MeetupResponseDTO>> response = ApiResponse.successResponse(
@@ -169,6 +164,7 @@ public class UserController {
      * 유저 리뷰 조회
      *
      */
+    /** 작성 가능한 리뷰 조회 **/
     @GetMapping("/{id}/reviews/{type}/eligible")
     public ResponseEntity<ApiResponse<List<UserEligibleReviewResponseDTO>>> getUserEligibleReviews(
             @PathVariable("id") Long userId,
@@ -183,6 +179,7 @@ public class UserController {
         );
         return ResponseEntity.ok().body(response);
     }
+    /** 작성한 리뷰 조회 **/
     @GetMapping("/{id}/reviews/{type}/written")
     public ResponseEntity<ApiResponse<List<UserWrittenReviewResponseDTO>>> getUserWrittenReviews(
             @PathVariable("id") Long profileUserId,

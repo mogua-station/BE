@@ -16,9 +16,12 @@ public class UserWrittenReviewResponseDTO {
     private int rating;
     private Long meetupId;
     private String title;
+    private Long reviewId;
     private String content;
+    private boolean iseditable;
     private LocalDateTime meetingEndDate;
     private String thumbnail;
+    private boolean isEditabel;
     private LocalDateTime reviewDate;
 
     public UserWrittenReviewResponseDTO(Review review) {
@@ -28,10 +31,11 @@ public class UserWrittenReviewResponseDTO {
         rating = review.getRating();
         meetupId = review.getMeetup().getId();
         title = review.getMeetup().getTitle();
+        reviewId = review.getId();
         content = review.getContent();
         meetingEndDate = review.getMeetup().getMeetingEndDate();
         thumbnail = review.getMeetup().getThumbnail();
+        isEditabel = review.isEditable();
         reviewDate = review.getCreatedAt();
     }
-
 }

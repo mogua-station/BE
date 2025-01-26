@@ -1,19 +1,14 @@
 package com.fesi6.team1.study_group.domain.user.controller;
 
-import com.fesi6.team1.study_group.domain.meetup.dto.UserCreateMeetupResponseDTO;
-import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
 import com.fesi6.team1.study_group.domain.user.dto.WishlistMeetupResponseDTO;
 import com.fesi6.team1.study_group.domain.user.dto.WishlistMeetupResponseDTOList;
 import com.fesi6.team1.study_group.domain.user.service.UserFavoriteService;
 import com.fesi6.team1.study_group.global.common.response.ApiResponse;
-import com.fesi6.team1.study_group.global.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -29,9 +24,8 @@ public class UserFavoriteController {
      *
      */
     @PostMapping("/{meetupId}")
-    public ResponseEntity<?> requestWishlist(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                 @PathVariable Long meetupId) {
-        Long userId = userDetails.getUserId();
+    public ResponseEntity<?> requestWishlist(@AuthenticationPrincipal Long userId,
+                                             @PathVariable Long meetupId) {
         userFavoriteService.requestWishlist(meetupId, userId);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("찜 성공"));
     }
@@ -42,10 +36,9 @@ public class UserFavoriteController {
      *
      */
     @DeleteMapping("/{meetupId}")
-    public ResponseEntity<ApiResponse<?>> deleteWishlist(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<ApiResponse<?>> deleteWishlist(@AuthenticationPrincipal Long userId,
                                                       @PathVariable Long meetupId) {
 
-        Long userId = userDetails.getUserId();
         userFavoriteService.deleteWishlist(meetupId, userId);
         return ResponseEntity.ok(ApiResponse.successWithMessage("찜 삭제 성공"));
     }

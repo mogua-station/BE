@@ -47,7 +47,7 @@ public class MeetupService {
         meetupRepository.save(meetup);
     }
 
-    public void saveMeetup(MultipartFile image, CreateMeetupRequestDTO request, Long userId) throws IOException {
+    public Map<String, Object> saveMeetup(MultipartFile image, CreateMeetupRequestDTO request, Long userId) throws IOException {
 
         String path = "meetupImage";
         String fileName;
@@ -77,6 +77,9 @@ public class MeetupService {
 
 
         meetupRepository.save(meetup);
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("meetupId", meetup.getId());
+        return responseData;
     }
 
     public void updateMeetup(MultipartFile image, UpdateMeetupRequestDTO request, Long userId, Long meetupId) throws IOException, IllegalAccessException {
@@ -90,21 +93,27 @@ public class MeetupService {
 
         meetup.setTitle(request.getTitle());
         meetup.setContent(request.getContent());
-
+        String path = "meetupImage";
+        String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/meetupImage/";
         if (image != null) {
-            String path = "meetupImage";
-            String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/meetupImage/";
             String currentThumbnail = meetup.getThumbnail();
-
             boolean isDefaultImage = currentThumbnail != null && currentThumbnail.equals(basePath + "defaultProfileImages.png");
-
             if (!isDefaultImage && currentThumbnail != null) {
                 String oldFilePath = currentThumbnail.replace(basePath, ""); // S3 경로에서 파일 경로 추출
                 s3FileService.deleteFile(oldFilePath);
             }
             String uploadedFileName = s3FileService.uploadFile(image, path);
             meetup.setThumbnail(basePath + uploadedFileName);
+        } else {
+            String currentThumbnail = meetup.getThumbnail();
+            boolean isDefaultImage = currentThumbnail != null && currentThumbnail.equals(basePath + "defaultProfileImages.png");
+            if (!isDefaultImage && currentThumbnail != null) {
+                String oldFilePath = currentThumbnail.replace(basePath, ""); // S3 경로에서 파일 경로 추출
+                s3FileService.deleteFile(oldFilePath);
+            }
+            meetup.setThumbnail(basePath + "defaultProfileImages.png");
         }
+
         meetupRepository.save(meetup);
     }
 
