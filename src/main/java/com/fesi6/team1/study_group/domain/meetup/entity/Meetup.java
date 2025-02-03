@@ -1,5 +1,6 @@
 package com.fesi6.team1.study_group.domain.meetup.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fesi6.team1.study_group.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -17,6 +18,7 @@ import static com.fesi6.team1.study_group.domain.meetup.entity.MeetupStatus.RECR
 @Setter
 @NoArgsConstructor
 @Table(name = "meetups")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Meetup {
 
     @Id
@@ -30,6 +32,7 @@ public class Meetup {
     @Column(nullable = false, updatable = false) // 수정 불가
     private MeetingType meetingType; // 모임 종류
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = true)
     private MeetupLocation location;  // 모임 지역
 

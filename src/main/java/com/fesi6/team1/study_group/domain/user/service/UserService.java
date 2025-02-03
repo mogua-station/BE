@@ -15,12 +15,14 @@ import com.fesi6.team1.study_group.domain.user.entity.User;
 import com.fesi6.team1.study_group.domain.user.entity.UserTag;
 import com.fesi6.team1.study_group.domain.user.repository.UserRepository;
 import com.fesi6.team1.study_group.global.common.s3.S3FileService;
+import com.fesi6.team1.study_group.global.security.jwt.JwtCookieUtil;
 import com.fesi6.team1.study_group.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,15 +38,52 @@ public class UserService {
     private final UserRepository userRepository;
     private final MeetupUserService meetupUserService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtCookieUtil jwtCookieUtil;
     private final S3FileService s3FileService;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public String kakaoSave(KakaoUserInfoDTO kakaoUserInfoDto) {
+    // Access Token 쿠키 생성
+    public ResponseCookie createAccessTokenCookie(Long userId) {
+        String accessToken = jwtTokenProvider.createAccessToken(userId);
+        return jwtCookieUtil.createAccessTokenCookie(accessToken);
+    }
 
-        // 카카오 ID로 이미 회원이 존재하는지 확인
-        User user = userRepository.findBySocialId(String.valueOf(kakaoUserInfoDto.getSocialId()))
+    // Refresh Token 쿠키 생성 및 저장
+    public ResponseCookie createRefreshTokenCookie(Long userId) {
+        String refreshToken = jwtTokenProvider.createRefreshToken(userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        user.updateRefreshToken(refreshToken);
+        userRepository.save(user);
+
+        return jwtCookieUtil.createRefreshTokenCookie(refreshToken);
+    }
+
+
+    // Refresh Token으로 Access Token 재발급
+    public ResponseCookie reissueAccessToken(String refreshToken) {
+        if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+
+        Long userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // DB에 저장된 Refresh Token과 비교
+        if (!refreshToken.equals(user.getRefreshToken())) {
+            throw new RuntimeException("Refresh token mismatch");
+        }
+
+        return createAccessTokenCookie(userId);
+    }
+
+    // 카카오 로그인 시 회원 저장 또는 기존 회원 정보 반환
+    public User kakaoSave(KakaoUserInfoDTO kakaoUserInfoDto) {
+        return userRepository.findBySocialId(String.valueOf(kakaoUserInfoDto.getSocialId()))
                 .orElseGet(() -> {
-                    // 회원이 존재하지 않으면 새로 생성
                     User newUser = User.socialUserBuilder()
                             .socialId(String.valueOf(kakaoUserInfoDto.getSocialId()))
                             .email(kakaoUserInfoDto.getEmail())
@@ -52,24 +91,18 @@ public class UserService {
                             .loginType(LoginType.SOCIAL)
                             .profileImg(kakaoUserInfoDto.getProfileImage())
                             .build();
-
-                    // 새로운 사용자 저장
                     return userRepository.save(newUser);
                 });
-
-        return jwtTokenProvider.createAccessToken(user.getId()); // socialId로 JWT 생성
     }
 
     public Map<String, Object> customSave(UserSignRequestDTO request) throws IOException {
-        // 이메일 중복 체크
+
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
-        // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-        // 새로운 User 객체 생성
         User user = User.customUserBuilder()
                 .email(request.getEmail())
                 .nickname(request.getNickname())
@@ -77,30 +110,24 @@ public class UserService {
                 .build();
         user.setPassword(encodedPassword);
 
-        // 프로필 이미지 설정
         String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/profileImage/";
         int randomNum = new Random().nextInt(4) + 1; // 1~4까지의 랜덤 숫자 생성
         String fileName = basePath + "defaultProfileImages/" + randomNum + ".png"; // 프로필 이미지 경로
         user.setProfileImg(fileName);
 
-        // 사용자 저장
         userRepository.save(user);
 
-        // JWT 생성
-        String jwtToken = jwtTokenProvider.createAccessToken(user.getId());
-
-        // 응답 데이터 생성
         Map<String, Object> userData = Map.of(
                 "email", user.getEmail(),
                 "name", user.getNickname()
         );
 
-        // "user"로 감싸서 반환
         return Map.of(
-                "user", userData,  // "user"로 감싸기
-                "jwtToken", jwtToken  // JWT 토큰도 반환
+                "user", userData,
+                "userId", user.getId()
         );
     }
+
 
     public UserLoginResponseDTO customLogin(UserLoginRequestDTO request) throws IOException {
         // 사용자가 입력한 이메일을 기반으로 User 찾기

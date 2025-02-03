@@ -180,7 +180,7 @@ public class ReviewService {
 
 
     public UserWrittenReviewResponseDTOList getUserWrittenReviewResponse(Long userId, MeetingType type, Integer page, Integer limit) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 컬럼을 기준으로 정렬
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.desc("createdAt"))); // createdAt 컬럼을 기준으로 정렬
 
         // 유저가 작성한 리뷰만 가져옴
         Page<Review> reviewPage = reviewRepository.findByUserIdAndMeetingType(userId, type, pageable);

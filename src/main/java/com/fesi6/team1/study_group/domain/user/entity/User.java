@@ -50,6 +50,7 @@ public class User {
     @JsonManagedReference  // 순환 참조 방지
     private List<UserTag> tags = new ArrayList<>();
 
+    private String refreshToken;
 
     @Builder(builderMethodName = "socialUserBuilder")
     public User(String socialId, String nickname, String email, String profileImg, LoginType loginType) {
@@ -67,6 +68,10 @@ public class User {
         this.password = password;
         this.nickname = nickname;
         this.loginType = loginType;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
 }

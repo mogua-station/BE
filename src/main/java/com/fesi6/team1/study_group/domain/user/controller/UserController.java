@@ -7,10 +7,14 @@ import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDT
 import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTOList;
 import com.fesi6.team1.study_group.domain.review.service.ReviewService;
 import com.fesi6.team1.study_group.domain.user.dto.*;
+import com.fesi6.team1.study_group.domain.user.entity.User;
 import com.fesi6.team1.study_group.domain.user.service.KakaoService;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
 import com.fesi6.team1.study_group.global.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -34,15 +38,50 @@ public class UserController {
 
     /**
      *
+     * Access Token 재발급 (Refresh Token 사용)
+     *
+     */
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ApiResponse<?>> reissueAccessToken(
+            @CookieValue(value = "refresh_token", required = false) String refreshToken) {
+
+        if (refreshToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.errorResponse("Refresh token is missing"));
+        }
+
+        try {
+            ResponseCookie newAccessTokenCookie = userService.reissueAccessToken(refreshToken);
+
+            // 추가 데이터로 새로운 Access Token 정보 전달
+            Map<String, Object> additionalData = Map.of(
+                    "newAccessToken", newAccessTokenCookie.getValue(),
+                    "message", "Access token reissued successfully"
+            );
+
+            return ResponseEntity.ok()
+                    .header("Set-Cookie", newAccessTokenCookie.toString())
+                    .body(ApiResponse.successResponse(null, additionalData));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.errorResponse(e.getMessage()));
+        }
+    }
+
+    /**
+     *
      * 카카오 로그인 & 회원가입
      *
      **/
     @GetMapping("/kakao/callback")
     public ResponseEntity<ApiResponse<?>> kakaoLogin(@RequestParam String code) {
-
         String kakaoToken = kakaoService.getKakaoToken(code);
         KakaoUserInfoDTO kakaoUserInfoDto = kakaoService.getKakaoUserInfo(kakaoToken);
-        String jwtToken = userService.kakaoSave(kakaoUserInfoDto);
+        User user = userService.kakaoSave(kakaoUserInfoDto);
+
+        ResponseCookie accessTokenCookie = userService.createAccessTokenCookie(user.getId());
+        ResponseCookie refreshTokenCookie = userService.createRefreshTokenCookie(user.getId());
 
         Map<String, Object> userData = Map.of(
                 "email", kakaoUserInfoDto.getEmail(),
@@ -50,7 +89,8 @@ public class UserController {
         );
 
         return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + jwtToken)  // access token 헤더에 추가
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(ApiResponse.successWithDataAndMessage(Map.of("user", userData), "Login successful"));
     }
 
@@ -60,19 +100,23 @@ public class UserController {
      *
      **/
     @PostMapping("/sign-up")
-    public ResponseEntity<ApiResponse<?>> sign(@RequestBody UserSignRequestDTO request) throws IOException {
+    public ResponseEntity<ApiResponse<?>> signUp(@RequestBody UserSignRequestDTO request) throws IOException {
 
         Map<String, Object> responseData = userService.customSave(request);
-        String jwtToken = (String) responseData.get("jwtToken");
+        Long userId = (Long) responseData.get("userId");
+
+        ResponseCookie accessTokenCookie = userService.createAccessTokenCookie(userId);
+        ResponseCookie refreshTokenCookie = userService.createRefreshTokenCookie(userId);
+
         Map<String, Object> wrappedUserData = Map.of(
-                "user", responseData.get("user")  // "user" 데이터 감싸기
+                "user", responseData.get("user")  // 사용자 데이터 감싸기
         );
 
         return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + jwtToken)  // 헤더에 JWT 추가
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())  // Access Token 쿠키
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString()) // Refresh Token 쿠키
                 .body(ApiResponse.successWithDataAndMessage(wrappedUserData, "Sign-up successful"));
     }
-
 
     /**
      *
@@ -106,10 +150,10 @@ public class UserController {
      *
      **/
     @PatchMapping("/profile/me")
-    public ResponseEntity<ApiResponse<?>> updateMyProfile(@AuthenticationPrincipal Long userId,
+    public ResponseEntity<ApiResponse<?>> updateMyProfile(@AuthenticationPrincipal String userId,
                                                           @RequestPart(required = false) MultipartFile image,
                                                           @RequestPart UpdateProfileRequestDTO request) throws IOException {
-        userService.updateMyProfile(userId, image, request);
+        userService.updateMyProfile(Long.valueOf(userId), image, request);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Profile update successful"));
     }
 
@@ -119,9 +163,9 @@ public class UserController {
      *
      **/
     @PostMapping("/profile/password")
-    public ResponseEntity<ApiResponse<?>> updatePassword(@AuthenticationPrincipal Long userId,
+    public ResponseEntity<ApiResponse<?>> updatePassword(@AuthenticationPrincipal String userId,
                                                          @RequestBody UpdatePasswordRequestDTO request) throws IOException {
-        userService.updatePassword(userId, request);
+        userService.updatePassword(Long.valueOf(userId), request);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Password update successful"));
     }
 
@@ -133,8 +177,8 @@ public class UserController {
     @GetMapping("/profile/{id}")
     public ResponseEntity<ApiResponse<UserProfileResponseDTO>> findUserProfile(
             @PathVariable Long id,
-            @AuthenticationPrincipal Long myId) {
-        UserProfileResponseDTO userProfile = userService.findUserProfile(id, myId);
+            @AuthenticationPrincipal String myId) {
+        UserProfileResponseDTO userProfile = userService.findUserProfile(id, Long.valueOf(myId));
         return ResponseEntity.ok().body(ApiResponse.successResponse(userProfile));
     }
 
@@ -145,7 +189,7 @@ public class UserController {
      **/
     @GetMapping("/{profileUserId}/meetups/participating/{type}")
     public ResponseEntity<ApiResponse<List<MeetupResponseDTO>>> getUserMeetups(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal String userId,
             @PathVariable("profileUserId") Long profileUserId,
             @PathVariable("type") MeetingType type,
             @RequestParam(value = "page", defaultValue = "0") Integer page,

@@ -61,9 +61,9 @@ public class MeetupController {
      */
     @DeleteMapping("/{meetupId}")
     public ResponseEntity<?> deleteMeetup(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal String userId,
             @PathVariable("meetupId") Long meetupId) throws IllegalAccessException {
-        meetupService.deleteMeetup(userId, meetupId);
+        meetupService.deleteMeetup(Long.valueOf(userId), meetupId);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Meetup deleted successfully"));
     }
 

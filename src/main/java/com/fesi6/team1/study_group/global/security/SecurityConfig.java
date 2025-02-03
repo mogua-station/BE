@@ -29,6 +29,7 @@ public class SecurityConfig {
             "/user/*/meetups/participating/**",
             "/user/*/reviews/**",
             "/user/*/meetups/created/**",
+            "/user/profile/*",
             "/user/reviews/received",
             "/meetups/list",
             "/meetups/*"

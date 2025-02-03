@@ -30,11 +30,11 @@ public class ReviewController {
      */
     @PostMapping
     public ResponseEntity<?> createReview(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal String userId,
             @RequestPart(required = false) MultipartFile image,
             @RequestPart CreateReviewRequestDTO request) throws IOException {
 
-        reviewService.saveReview(request, userId, image);
+        reviewService.saveReview(request, Long.valueOf(userId), image);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Review created successfully"));
     }
 
@@ -75,11 +75,11 @@ public class ReviewController {
      */
     @PatchMapping("/{reviewId}")
     public ResponseEntity<?> updateReview(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal String userId,
             @PathVariable Long reviewId,
             @RequestPart(required = false) MultipartFile image,
             @RequestPart UpdateReviewRequestDTO request) throws IOException {
-        reviewService.updateReview(request, reviewId, userId, image);
+        reviewService.updateReview(request, reviewId, Long.valueOf(userId), image);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Review updated successfully"));
     }
 
@@ -90,10 +90,10 @@ public class ReviewController {
      */
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> deleteReview(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal String userId,
             @PathVariable Long reviewId) throws IOException {
 
-        reviewService.deleteReview(reviewId, userId);
+        reviewService.deleteReview(reviewId, Long.valueOf(userId));
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Review deleted successfully"));
     }
 

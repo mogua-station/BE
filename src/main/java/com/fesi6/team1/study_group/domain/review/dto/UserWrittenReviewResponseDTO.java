@@ -18,7 +18,6 @@ public class UserWrittenReviewResponseDTO {
     private String title;
     private Long reviewId;
     private String content;
-    private boolean iseditable;
     private LocalDateTime meetingEndDate;
     private String thumbnail;
     private boolean isEditabel;
