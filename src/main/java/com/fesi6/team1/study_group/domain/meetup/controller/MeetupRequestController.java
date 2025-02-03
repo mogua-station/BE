@@ -21,9 +21,9 @@ public class MeetupRequestController {
      *
      */
     @PostMapping("/{meetupId}/join")
-    public ResponseEntity<?> createMeetupRequest(@AuthenticationPrincipal String userId,
+    public ResponseEntity<?> createMeetupRequest(@AuthenticationPrincipal Long userId,
                                                  @PathVariable Long meetupId) {
-        meetupRequestService.requestMeetup(meetupId, Long.valueOf(userId));
+        meetupRequestService.requestMeetup(meetupId, userId);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Meetup request created successfully"));
     }
 
@@ -33,10 +33,10 @@ public class MeetupRequestController {
      *
      */
     @DeleteMapping("/{meetupId}/leave")
-    public ResponseEntity<ApiResponse<?>> leaveMeetup(@AuthenticationPrincipal String userId,
+    public ResponseEntity<ApiResponse<?>> leaveMeetup(@AuthenticationPrincipal Long userId,
                                                       @PathVariable Long meetupId) {
 
-        meetupRequestService.leaveMeetup(meetupId, Long.valueOf(userId));
+        meetupRequestService.leaveMeetup(meetupId, userId);
         return ResponseEntity.ok(ApiResponse.successWithMessage("Successfully left the meetup"));
     }
 }

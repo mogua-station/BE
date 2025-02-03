@@ -120,7 +120,7 @@ public class UserController {
 
     /**
      *
-     * 커스텀 로그인
+     * 커스텀 로그인 (Access Token + Refresh Token 발급)
      *
      **/
     @PostMapping("/sign-in")
@@ -128,20 +128,27 @@ public class UserController {
         // 로그인 서비스 호출 (JWT 토큰과 사용자 정보 반환)
         UserLoginResponseDTO userResponse = userService.customLogin(request);
 
-        // 사용자 정보를 "user"로 감싼 Map 생성 (JWT 제거)
+        // Access Token & Refresh Token 생성
+        ResponseCookie accessTokenCookie = userService.createAccessTokenCookie(userResponse.getId());
+        ResponseCookie refreshTokenCookie = userService.createRefreshTokenCookie(userResponse.getId());
+
+        // 사용자 정보를 "user"로 감싼 Map 생성
         Map<String, Object> responseData = Map.of(
                 "user", Map.of(
-                        "userId",userResponse.getId(),
+                        "userId", userResponse.getId(),
                         "email", userResponse.getEmail(),
                         "name", userResponse.getName(),
-                        "profileImg",userResponse.getProfileImg()
+                        "profileImg", userResponse.getProfileImg()
                 )
         );
-        // JWT 포함하여 응답 반환
+
+        // Access Token과 Refresh Token을 쿠키로 반환하고 사용자 정보는 본문에 반환
         return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + userResponse.getJwtToken()) // JWT는 헤더에만 포함
-                .body(ApiResponse.successResponse(responseData)); // 사용자 정보만 본문에 반환
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .body(ApiResponse.successResponse(responseData));
     }
+
 
 
     /**
@@ -150,10 +157,10 @@ public class UserController {
      *
      **/
     @PatchMapping("/profile/me")
-    public ResponseEntity<ApiResponse<?>> updateMyProfile(@AuthenticationPrincipal String userId,
+    public ResponseEntity<ApiResponse<?>> updateMyProfile(@AuthenticationPrincipal Long userId,
                                                           @RequestPart(required = false) MultipartFile image,
                                                           @RequestPart UpdateProfileRequestDTO request) throws IOException {
-        userService.updateMyProfile(Long.valueOf(userId), image, request);
+        userService.updateMyProfile(userId, image, request);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Profile update successful"));
     }
 
@@ -163,9 +170,9 @@ public class UserController {
      *
      **/
     @PostMapping("/profile/password")
-    public ResponseEntity<ApiResponse<?>> updatePassword(@AuthenticationPrincipal String userId,
+    public ResponseEntity<ApiResponse<?>> updatePassword(@AuthenticationPrincipal Long userId,
                                                          @RequestBody UpdatePasswordRequestDTO request) throws IOException {
-        userService.updatePassword(Long.valueOf(userId), request);
+        userService.updatePassword(userId, request);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Password update successful"));
     }
 
@@ -177,8 +184,8 @@ public class UserController {
     @GetMapping("/profile/{id}")
     public ResponseEntity<ApiResponse<UserProfileResponseDTO>> findUserProfile(
             @PathVariable Long id,
-            @AuthenticationPrincipal String myId) {
-        UserProfileResponseDTO userProfile = userService.findUserProfile(id, Long.valueOf(myId));
+            @AuthenticationPrincipal Long myId) {
+        UserProfileResponseDTO userProfile = userService.findUserProfile(id, myId);
         return ResponseEntity.ok().body(ApiResponse.successResponse(userProfile));
     }
 
@@ -189,7 +196,6 @@ public class UserController {
      **/
     @GetMapping("/{profileUserId}/meetups/participating/{type}")
     public ResponseEntity<ApiResponse<List<MeetupResponseDTO>>> getUserMeetups(
-            @AuthenticationPrincipal String userId,
             @PathVariable("profileUserId") Long profileUserId,
             @PathVariable("type") MeetingType type,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
