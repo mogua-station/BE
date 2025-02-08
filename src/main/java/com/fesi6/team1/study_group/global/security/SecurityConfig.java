@@ -15,6 +15,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -59,29 +61,32 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 허용할 Origin 설정
-        configuration.addAllowedOrigin("http://localhost:3000"); // 기존 로컬 개발 환경
-        configuration.addAllowedOrigin("https://mogua-g109cgdv1-joshuayeyos-projects.vercel.app");
-        configuration.addAllowedOrigin("https://mogua.vercel.app/");
+        // 허용할 Origin 설정 (뒤에 '/' 제거)
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "https://mogua-g109cgdv1-joshuayeyos-projects.vercel.app",
+                "https://mogua.vercel.app"
+        ));
 
-        // 허용할 HTTP 메서드 설정
-        configuration.addAllowedMethod("*"); // 모든 메서드 허용
+        // 모든 HTTP 메서드 허용
+        configuration.addAllowedMethod("*");
 
-        // 허용할 헤더 설정
-        configuration.addAllowedHeader("*"); // 모든 헤더 허용
+        // 모든 헤더 허용
+        configuration.addAllowedHeader("*");
 
-        // 인증 정보 허용 여부 설정
-        configuration.setAllowCredentials(true); // 쿠키 또는 인증 정보를 포함한 요청 허용
+        // 인증 정보 포함 (credentials: 'include' 허용)
+        configuration.setAllowCredentials(true);
 
         // 클라이언트에서 접근할 수 있도록 노출할 헤더 설정
-        configuration.addExposedHeader("Authorization"); // Authorization 헤더 노출
+        configuration.addExposedHeader("Authorization");
 
         // CORS 설정을 적용할 경로 매핑
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 CORS 설정 적용
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
+
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {

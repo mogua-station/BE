@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class JwtCookieUtil {
 
     public ResponseCookie createAccessTokenCookie(String accessToken) {
-        return ResponseCookie.from("access_token", accessToken)
+        return ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -17,7 +17,7 @@ public class JwtCookieUtil {
     }
 
     public ResponseCookie createRefreshTokenCookie(String refreshToken) {
-        return ResponseCookie.from("refresh_token", refreshToken)
+        return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")

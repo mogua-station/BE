@@ -149,8 +149,6 @@ public class UserController {
                 .body(ApiResponse.successResponse(responseData));
     }
 
-
-
     /**
      *
      * 내 프로필 수정

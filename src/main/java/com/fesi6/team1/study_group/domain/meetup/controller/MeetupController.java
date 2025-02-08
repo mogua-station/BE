@@ -105,4 +105,17 @@ public class MeetupController {
         return ResponseEntity.ok().body(response);
     }
 
+    /**
+     *
+     * 모든 모임 리스트 조회
+     *
+     */
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<MeetupResponseDTO>>> getAllMeetups() {
+        List<MeetupResponseDTO> meetups = meetupService.getAllMeetups();
+        ApiResponse<List<MeetupResponseDTO>> response = ApiResponse.successResponse(meetups);
+        return ResponseEntity.ok().body(response);
+    }
+
+
 }

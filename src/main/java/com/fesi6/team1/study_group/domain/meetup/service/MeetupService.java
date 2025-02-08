@@ -210,12 +210,14 @@ public class MeetupService {
     }
 
     private Sort getSortBy(String orderBy) {
-        switch (orderBy.toLowerCase()) {
-            case "oldest":
-                return Sort.by(Sort.Direction.ASC, "createdAt");
+        switch (orderBy) {
+            case "deadline":
+                return Sort.by(Sort.Direction.ASC, "deadline"); // 마감일 오름차순 (임박순)
+            case "participant":
+                return Sort.by(Sort.Direction.DESC, "participantCount"); // 참여 인원 내림차순
             case "latest":
             default:
-                return Sort.by(Sort.Direction.DESC, "createdAt");
+                return Sort.by(Sort.Direction.DESC, "createdAt"); // 최신순
         }
     }
 
@@ -237,6 +239,13 @@ public class MeetupService {
         additionalData.put("nextPage", nextPage);
         additionalData.put("isLast", isLast);
         return new UserCreateMeetupResponseDTOList(userCreateMeetupResponseDTOList, additionalData);
+    }
+
+    public List<MeetupResponseDTO> getAllMeetups() {
+        List<Meetup> meetupList = meetupRepository.findAll();
+        return meetupList.stream()
+                .map(MeetupResponseDTO::new)
+                .collect(Collectors.toList());
     }
 
 }

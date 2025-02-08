@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.fesi6.team1.study_group.StudyGroupApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-01-02T07:04:56" hostname="BOOK-GV6LSPNGG0" time="0.592">
+<testsuite name="com.fesi6.team1.study_group.StudyGroupApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-02-08T07:36:39" hostname="BOOK-GV6LSPNGG0" time="0.637">
   <properties/>
-  <testcase name="contextLoads()" classname="com.fesi6.team1.study_group.StudyGroupApplicationTests" time="0.592"/>
-  <system-out><![CDATA[16:04:46.729 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.fesi6.team1.study_group.StudyGroupApplicationTests]: StudyGroupApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-16:04:46.874 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.fesi6.team1.study_group.StudyGroupApplication for test class com.fesi6.team1.study_group.StudyGroupApplicationTests
+  <testcase name="contextLoads()" classname="com.fesi6.team1.study_group.StudyGroupApplicationTests" time="0.637"/>
+  <system-out><![CDATA[Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+16:36:30.423 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.fesi6.team1.study_group.StudyGroupApplicationTests]: StudyGroupApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:36:30.625 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.fesi6.team1.study_group.StudyGroupApplication for test class com.fesi6.team1.study_group.StudyGroupApplicationTests
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -14,31 +15,177 @@
 
  :: Spring Boot ::                (v3.4.1)
 
-2025-01-02T16:04:47.321+09:00  INFO 11424 --- [study-group] [    Test worker] c.f.t.s.StudyGroupApplicationTests       : Starting StudyGroupApplicationTests using Java 17.0.10 with PID 11424 (started by 82107 in C:\Users\82107\Downloads\project\FESI6\study-group\study-group)
-2025-01-02T16:04:47.321+09:00  INFO 11424 --- [study-group] [    Test worker] c.f.t.s.StudyGroupApplicationTests       : No active profile set, falling back to 1 default profile: "default"
-2025-01-02T16:04:48.223+09:00  INFO 11424 --- [study-group] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-01-02T16:04:48.288+09:00  INFO 11424 --- [study-group] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 56 ms. Found 1 JPA repository interface.
-2025-01-02T16:04:48.867+09:00  INFO 11424 --- [study-group] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-01-02T16:04:48.932+09:00  INFO 11424 --- [study-group] [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.4.Final
-2025-01-02T16:04:48.965+09:00  INFO 11424 --- [study-group] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2025-01-02T16:04:49.381+09:00  INFO 11424 --- [study-group] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-01-02T16:04:49.410+09:00  INFO 11424 --- [study-group] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2025-01-02T16:04:52.889+09:00  INFO 11424 --- [study-group] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2833c093
-2025-01-02T16:04:52.896+09:00  INFO 11424 --- [study-group] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2025-01-02T16:04:53.132+09:00  WARN 11424 --- [study-group] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2025-01-02T16:04:53.132+09:00  WARN 11424 --- [study-group] [    Test worker] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
-2025-01-02T16:04:53.156+09:00  INFO 11424 --- [study-group] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2025-02-08T16:36:31.197+09:00  INFO 20072 --- [study-group] [    Test worker] c.f.t.s.StudyGroupApplicationTests       : Starting StudyGroupApplicationTests using Java 17.0.10 with PID 20072 (started by 82107 in C:\Users\82107\Downloads\project\FESI6\study-group\study-group)
+2025-02-08T16:36:31.199+09:00  INFO 20072 --- [study-group] [    Test worker] c.f.t.s.StudyGroupApplicationTests       : No active profile set, falling back to 1 default profile: "default"
+2025-02-08T16:36:32.356+09:00  INFO 20072 --- [study-group] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-02-08T16:36:32.489+09:00  INFO 20072 --- [study-group] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 117 ms. Found 6 JPA repository interfaces.
+2025-02-08T16:36:33.303+09:00  INFO 20072 --- [study-group] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-02-08T16:36:33.424+09:00  INFO 20072 --- [study-group] [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.4.Final
+2025-02-08T16:36:33.483+09:00  INFO 20072 --- [study-group] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-02-08T16:36:34.108+09:00  INFO 20072 --- [study-group] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-02-08T16:36:34.162+09:00  INFO 20072 --- [study-group] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-02-08T16:36:34.341+09:00  INFO 20072 --- [study-group] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:tcp://localhost/~/test user=SA
+2025-02-08T16:36:34.347+09:00  INFO 20072 --- [study-group] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-02-08T16:36:34.469+09:00  INFO 20072 --- [study-group] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
 	Database driver: undefined/unknown
-	Database version: 8.0
+	Database version: 2.2.224
 	Autocommit mode: undefined/unknown
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2025-01-02T16:04:53.907+09:00  INFO 11424 --- [study-group] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2025-01-02T16:04:54.622+09:00  INFO 11424 --- [study-group] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-01-02T16:04:55.217+09:00  WARN 11424 --- [study-group] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-01-02T16:04:56.228+09:00  INFO 11424 --- [study-group] [    Test worker] c.f.t.s.StudyGroupApplicationTests       : Started StudyGroupApplicationTests in 9.19 seconds (process running for 10.677)
+2025-02-08T16:36:35.860+09:00  INFO 20072 --- [study-group] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: 
+    drop table if exists meetup_request cascade 
+Hibernate: 
+    drop table if exists meetups cascade 
+Hibernate: 
+    drop table if exists meetup_user cascade 
+Hibernate: 
+    drop table if exists review cascade 
+Hibernate: 
+    drop table if exists user_favorites cascade 
+Hibernate: 
+    drop table if exists users cascade 
+Hibernate: 
+    drop table if exists user_tag cascade 
+Hibernate: 
+    create table meetup_request (
+        id bigint generated by default as identity,
+        meetup_id bigint not null,
+        processed_at timestamp(6),
+        requested_at timestamp(6) not null,
+        user_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    create table meetups (
+        is_online boolean not null,
+        max_participants integer not null,
+        min_participants integer not null,
+        participant_count integer not null,
+        created_at timestamp(6) not null,
+        host_id bigint not null,
+        id bigint generated by default as identity,
+        meeting_end_date timestamp(6) not null,
+        meeting_start_date timestamp(6) not null,
+        recruitment_end_date timestamp(6) not null,
+        updated_at timestamp(6) not null,
+        content TEXT not null,
+        thumbnail varchar(255),
+        title varchar(255) not null,
+        location enum ('BUSAN','CAPITAL','DAEGU','DAEJEON','GANGNEUNG','GWANGJU','JEONJU'),
+        meeting_type enum ('STUDY','TUTORING') not null,
+        status enum ('BEFORE_START','COMPLETED','IN_PROGRESS','RECRUITING') not null,
+        primary key (id)
+    )
+Hibernate: 
+    create table meetup_user (
+        has_review boolean not null,
+        created_at timestamp(6) not null,
+        id bigint generated by default as identity,
+        meetup_id bigint not null,
+        updated_at timestamp(6) not null,
+        user_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    create table review (
+        is_editable boolean not null,
+        rating integer not null,
+        created_at timestamp(6) not null,
+        id bigint generated by default as identity,
+        meetup_id bigint not null,
+        updated_at timestamp(6) not null,
+        user_id bigint not null,
+        content TEXT not null,
+        thumbnail varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    create table user_favorites (
+        created_at timestamp(6) not null,
+        id bigint generated by default as identity,
+        meetup_id bigint not null,
+        updated_at timestamp(6) not null,
+        user_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    create table users (
+        id bigint generated by default as identity,
+        bio varchar(20),
+        email varchar(255) not null unique,
+        nickname varchar(255),
+        password varchar(255),
+        profile_img varchar(255),
+        refresh_token varchar(255),
+        social_id varchar(255) unique,
+        login_type enum ('CUSTOM','SOCIAL'),
+        qualification_status enum ('QUALIFIED','UNQUALIFIED'),
+        primary key (id)
+    )
+Hibernate: 
+    create table user_tag (
+        id bigint generated by default as identity,
+        user_id bigint not null,
+        tag varchar(255) not null,
+        primary key (id)
+    )
+Hibernate: 
+    alter table if exists meetup_request 
+       add constraint FK5apcir24mq34k4osb6jj61i5d 
+       foreign key (meetup_id) 
+       references meetups
+Hibernate: 
+    alter table if exists meetup_request 
+       add constraint FK3cdqkwgr0bpul5l2xsajrnama 
+       foreign key (user_id) 
+       references users
+Hibernate: 
+    alter table if exists meetups 
+       add constraint FKrv8wv4vgf6k4cf6fbvcn6kxl4 
+       foreign key (host_id) 
+       references users
+Hibernate: 
+    alter table if exists meetup_user 
+       add constraint FKigf6q3r4jckqsvv78bdc3rbod 
+       foreign key (meetup_id) 
+       references meetups
+Hibernate: 
+    alter table if exists meetup_user 
+       add constraint FKqjn386c55k1jny6d5rf2jg12h 
+       foreign key (user_id) 
+       references users
+Hibernate: 
+    alter table if exists review 
+       add constraint FKn17tioanrkd4j5eb6j2008oh8 
+       foreign key (meetup_id) 
+       references meetups
+Hibernate: 
+    alter table if exists review 
+       add constraint FK6cpw2nlklblpvc7hyt7ko6v3e 
+       foreign key (user_id) 
+       references users
+Hibernate: 
+    alter table if exists user_favorites 
+       add constraint FKjc3ukathkd9dqb5w9n308ar5g 
+       foreign key (meetup_id) 
+       references meetups
+Hibernate: 
+    alter table if exists user_favorites 
+       add constraint FK4sv7b9w9adr0fjnc4u10exlwm 
+       foreign key (user_id) 
+       references users
+Hibernate: 
+    alter table if exists user_tag 
+       add constraint FK30wgo8txt0c0v8nxnwmxmrce6 
+       foreign key (user_id) 
+       references users
+2025-02-08T16:36:35.981+09:00  INFO 20072 --- [study-group] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-02-08T16:36:36.648+09:00  INFO 20072 --- [study-group] [    Test worker] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-02-08T16:36:38.696+09:00  WARN 20072 --- [study-group] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-02-08T16:36:39.792+09:00  INFO 20072 --- [study-group] [    Test worker] c.f.t.s.StudyGroupApplicationTests       : Started StudyGroupApplicationTests in 8.961 seconds (process running for 10.802)
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
