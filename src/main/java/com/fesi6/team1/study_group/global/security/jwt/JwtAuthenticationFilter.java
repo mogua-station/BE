@@ -1,5 +1,7 @@
 package com.fesi6.team1.study_group.global.security.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,36 +25,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
         String accessToken = getJwtFromRequest(request);
 
-        if (accessToken != null && jwtTokenProvider.validateAccessToken(accessToken)) {
-            Long userId = jwtTokenProvider.getUserIdFromAccessToken(accessToken);
+        if (accessToken != null) {
+            try {
+                if (jwtTokenProvider.validateAccessToken(accessToken)) {
+                    Long userId = jwtTokenProvider.getUserIdFromAccessToken(accessToken);
 
-            // Principal로 userId 설정
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+                    // Principal로 userId 설정
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
 
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } else if (accessToken != null && !jwtTokenProvider.validateAccessToken(accessToken)) {
-            String refreshToken = request.getHeader("Refresh-Token");
-
-            if (refreshToken != null && jwtTokenProvider.validateRefreshToken(refreshToken)) {
-                Long userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
-
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
-
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                // 새로운 accessToken 발급 후 response에 추가 (선택 사항)
-                String newAccessToken = jwtTokenProvider.createAccessToken(userId);
-                response.setHeader("Authorization", "Bearer " + newAccessToken);
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    throw new ExpiredJwtException(null, null, "Access token has expired");
+                }
+            } catch (ExpiredJwtException e) {
+                // 토큰 만료 시 401 Unauthorized로 처리하고 JSON 형식으로 메시지 전송
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");  // 응답 타입을 JSON으로 설정
+                response.getWriter().write("{\"status\": \"error\", \"data\": {}, \"message\": \"Access token has expired. Please refresh your token.\"}");
+                return;  // 더 이상 필터 체인을 진행하지 않음
+            } catch (JwtException e) {
+                // 다른 JwtException 처리를 추가할 수 있음
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setContentType("application/json");  // 응답 타입을 JSON으로 설정
+                response.getWriter().write("{\"status\": \"error\", \"data\": {}, \"message\": \"Invalid token.\"}");
+                return;
             }
         }
-        filterChain.doFilter(request, response);
+
+        filterChain.doFilter(request, response);  // 필터 체인 계속 진행
     }
+
+
 
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");

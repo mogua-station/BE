@@ -11,6 +11,7 @@ import com.fesi6.team1.study_group.domain.user.entity.User;
 import com.fesi6.team1.study_group.domain.user.service.KakaoService;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
 import com.fesi6.team1.study_group.global.common.response.ApiResponse;
+import com.fesi6.team1.study_group.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,7 @@ public class UserController {
     private final ReviewService reviewService;
     private final MeetupService meetupService;
     private final KakaoService kakaoService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     /**
      *
@@ -43,13 +45,12 @@ public class UserController {
      */
     @PostMapping("/refresh-token")
     public ResponseEntity<ApiResponse<?>> reissueAccessToken(
-            @CookieValue(value = "refresh_token", required = false) String refreshToken) {
+            @CookieValue(value = "refreshToken", required = false) String refreshToken) {
 
         if (refreshToken == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.errorResponse("Refresh token is missing"));
         }
-
         try {
             ResponseCookie newAccessTokenCookie = userService.reissueAccessToken(refreshToken);
 
@@ -58,15 +59,27 @@ public class UserController {
                     "newAccessToken", newAccessTokenCookie.getValue(),
                     "message", "Access token reissued successfully"
             );
-
             return ResponseEntity.ok()
                     .header("Set-Cookie", newAccessTokenCookie.toString())
                     .body(ApiResponse.successResponse(null, additionalData));
-
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.errorResponse(e.getMessage()));
         }
+    }
+
+    /**
+     *
+     * 토큰 유효성 확인
+     *
+     */
+    @GetMapping("/verify")
+    public ResponseEntity<ApiResponse<?>> verifyToken(@CookieValue(value = "accessToken", required = false) String accessToken) {
+        if (accessToken == null || !jwtTokenProvider.validateAccessToken(accessToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.errorResponse("Invalid or expired access token"));
+        }
+        return ResponseEntity.ok(ApiResponse.successWithMessage("Access token is valid"));
     }
 
     /**

@@ -12,7 +12,7 @@ public class JwtCookieUtil {
                 .secure(true)
                 .path("/")
                 .maxAge(60 * 15)  // 15분
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
     }
 
@@ -22,7 +22,7 @@ public class JwtCookieUtil {
                 .secure(true)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)  // 7일
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
     }
 }

@@ -61,7 +61,6 @@ public class UserService {
         return jwtCookieUtil.createRefreshTokenCookie(refreshToken);
     }
 
-
     // Refresh Token으로 Access Token 재발급
     public ResponseCookie reissueAccessToken(String refreshToken) {
         if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
@@ -76,7 +75,6 @@ public class UserService {
         if (!refreshToken.equals(user.getRefreshToken())) {
             throw new RuntimeException("Refresh token mismatch");
         }
-
         return createAccessTokenCookie(userId);
     }
 
