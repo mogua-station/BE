@@ -56,8 +56,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
         }
-
-        filterChain.doFilter(request, response);  // 필터 체인 계속 진행
+        response.setHeader("Partitioned", "true");
+        filterChain.doFilter(request, response);
     }
 
 
