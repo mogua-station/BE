@@ -54,7 +54,7 @@ public class ReviewController {
      * 리뷰 리스트 조회
      *
      */
-    @GetMapping("/{meetupId}")
+    @GetMapping("/list/{meetupId}")
     public ResponseEntity<ApiResponse<List<ReviewResponseDTO>>> getReviewsByMeetupId(
             @PathVariable Long meetupId,
             @RequestParam(defaultValue = "0") Integer page,
