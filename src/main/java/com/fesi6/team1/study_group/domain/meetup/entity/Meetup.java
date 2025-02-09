@@ -34,7 +34,7 @@ public class Meetup {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = true)
-    private MeetupLocation location;  // 모임 지역
+    private MeetupLocation location = MeetupLocation.UNDEFINED;  // 모임 지역
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;  // 본문
@@ -123,5 +123,4 @@ public class Meetup {
             this.updatedAt = now; // 상태가 변경된 시간을 기록
         }
     }
-
 }

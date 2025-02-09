@@ -88,7 +88,7 @@ public class UserController {
      *
      **/
     @GetMapping("/kakao/callback")
-    public ResponseEntity<ApiResponse<?>> kakaoLogin(@RequestParam String code) {
+    public ResponseEntity<ApiResponse<?>> kakaoLogin(@RequestParam(value = "code") String code) {
         String kakaoToken = kakaoService.getKakaoToken(code);
         KakaoUserInfoDTO kakaoUserInfoDto = kakaoService.getKakaoUserInfo(kakaoToken);
         User user = userService.kakaoSave(kakaoUserInfoDto);
@@ -168,9 +168,10 @@ public class UserController {
      *
      **/
     @PatchMapping("/profile/me")
-    public ResponseEntity<ApiResponse<?>> updateMyProfile(@AuthenticationPrincipal Long userId,
-                                                          @RequestPart(required = false) MultipartFile image,
-                                                          @RequestPart UpdateProfileRequestDTO request) throws IOException {
+    public ResponseEntity<ApiResponse<?>> updateMyProfile(
+            @AuthenticationPrincipal Long userId,
+            @RequestPart(value ="image", required = false) MultipartFile image,
+            @RequestPart("request") UpdateProfileRequestDTO request) throws IOException {
         userService.updateMyProfile(userId, image, request);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Profile update successful"));
     }

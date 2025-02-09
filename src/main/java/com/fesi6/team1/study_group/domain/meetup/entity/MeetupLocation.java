@@ -7,5 +7,6 @@ public enum MeetupLocation {
     GWANGJU,
     BUSAN,
     DAEGU,
-    GANGNEUNG
+    GANGNEUNG,
+    UNDEFINED
 }

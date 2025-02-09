@@ -31,9 +31,11 @@ public class MeetupController {
      *
      */
     @PostMapping
-    public ResponseEntity<?> CreateMeetups(@AuthenticationPrincipal Long userId,
-                                           @RequestPart(required = false) MultipartFile image,
-                                           @RequestPart CreateMeetupRequestDTO request) throws IOException {
+    public ResponseEntity<?> CreateMeetups(
+            @AuthenticationPrincipal Long userId,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestPart(value = "request") CreateMeetupRequestDTO request
+    ) throws IOException{
         Map<String, Object> responseData = meetupService.saveMeetup(image, request, userId);
         return ResponseEntity.ok()
                 .body(ApiResponse.successWithDataAndMessage(responseData, "Meetup created successfully"));

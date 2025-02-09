@@ -20,7 +20,7 @@ public interface MeetupUserRepository extends JpaRepository<MeetupUser, Long> {
     void delete(MeetupUser meetupUser);
 
     @Query("SELECT mu.meetup FROM MeetupUser mu WHERE mu.user.id = :userId AND mu.meetup.meetingType = :type")
-    Page<Meetup> findByUserIdAndType(Long userId, MeetingType type, Pageable pageable);
+    Page<Meetup> findByUserIdAndType(@Param("userId") Long userId, @Param("type") MeetingType type, Pageable pageable);
 
     int countByMeetupId(Long meetupId);
 

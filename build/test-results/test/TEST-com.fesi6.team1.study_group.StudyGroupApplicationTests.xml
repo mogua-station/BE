@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.fesi6.team1.study_group.StudyGroupApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-02-08T07:36:39" hostname="BOOK-GV6LSPNGG0" time="0.637">
+<testsuite name="com.fesi6.team1.study_group.StudyGroupApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-02-09T10:00:21" hostname="BOOK-GV6LSPNGG0" time="0.623">
   <properties/>
-  <testcase name="contextLoads()" classname="com.fesi6.team1.study_group.StudyGroupApplicationTests" time="0.637"/>
+  <testcase name="contextLoads()" classname="com.fesi6.team1.study_group.StudyGroupApplicationTests" time="0.623"/>
   <system-out><![CDATA[Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
-16:36:30.423 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.fesi6.team1.study_group.StudyGroupApplicationTests]: StudyGroupApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-16:36:30.625 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.fesi6.team1.study_group.StudyGroupApplication for test class com.fesi6.team1.study_group.StudyGroupApplicationTests
+19:00:12.753 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.fesi6.team1.study_group.StudyGroupApplicationTests]: StudyGroupApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+19:00:12.980 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.fesi6.team1.study_group.StudyGroupApplication for test class com.fesi6.team1.study_group.StudyGroupApplicationTests
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -15,18 +15,18 @@
 
  :: Spring Boot ::                (v3.4.1)
 
-2025-02-08T16:36:31.197+09:00  INFO 20072 --- [study-group] [    Test worker] c.f.t.s.StudyGroupApplicationTests       : Starting StudyGroupApplicationTests using Java 17.0.10 with PID 20072 (started by 82107 in C:\Users\82107\Downloads\project\FESI6\study-group\study-group)
-2025-02-08T16:36:31.199+09:00  INFO 20072 --- [study-group] [    Test worker] c.f.t.s.StudyGroupApplicationTests       : No active profile set, falling back to 1 default profile: "default"
-2025-02-08T16:36:32.356+09:00  INFO 20072 --- [study-group] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-02-08T16:36:32.489+09:00  INFO 20072 --- [study-group] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 117 ms. Found 6 JPA repository interfaces.
-2025-02-08T16:36:33.303+09:00  INFO 20072 --- [study-group] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-02-08T16:36:33.424+09:00  INFO 20072 --- [study-group] [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.4.Final
-2025-02-08T16:36:33.483+09:00  INFO 20072 --- [study-group] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2025-02-08T16:36:34.108+09:00  INFO 20072 --- [study-group] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-02-08T16:36:34.162+09:00  INFO 20072 --- [study-group] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2025-02-08T16:36:34.341+09:00  INFO 20072 --- [study-group] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:tcp://localhost/~/test user=SA
-2025-02-08T16:36:34.347+09:00  INFO 20072 --- [study-group] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2025-02-08T16:36:34.469+09:00  INFO 20072 --- [study-group] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2025-02-09T19:00:13.680+09:00  INFO 10912 --- [study-group] [    Test worker] c.f.t.s.StudyGroupApplicationTests       : Starting StudyGroupApplicationTests using Java 17.0.10 with PID 10912 (started by 82107 in C:\Users\82107\Downloads\project\FESI6\study-group\study-group)
+2025-02-09T19:00:13.686+09:00  INFO 10912 --- [study-group] [    Test worker] c.f.t.s.StudyGroupApplicationTests       : No active profile set, falling back to 1 default profile: "default"
+2025-02-09T19:00:14.719+09:00  INFO 10912 --- [study-group] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-02-09T19:00:14.848+09:00  INFO 10912 --- [study-group] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 116 ms. Found 6 JPA repository interfaces.
+2025-02-09T19:00:15.530+09:00  INFO 10912 --- [study-group] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-02-09T19:00:15.612+09:00  INFO 10912 --- [study-group] [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.4.Final
+2025-02-09T19:00:15.659+09:00  INFO 10912 --- [study-group] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-02-09T19:00:16.083+09:00  INFO 10912 --- [study-group] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-02-09T19:00:16.124+09:00  INFO 10912 --- [study-group] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-02-09T19:00:16.221+09:00  INFO 10912 --- [study-group] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:tcp://localhost/~/test user=SA
+2025-02-09T19:00:16.221+09:00  INFO 10912 --- [study-group] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-02-09T19:00:16.303+09:00  INFO 10912 --- [study-group] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
 	Database driver: undefined/unknown
 	Database version: 2.2.224
@@ -34,7 +34,7 @@
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2025-02-08T16:36:35.860+09:00  INFO 20072 --- [study-group] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-02-09T19:00:17.703+09:00  INFO 10912 --- [study-group] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
 Hibernate: 
     drop table if exists meetup_request cascade 
 Hibernate: 
@@ -182,10 +182,10 @@ Hibernate:
        add constraint FK30wgo8txt0c0v8nxnwmxmrce6 
        foreign key (user_id) 
        references users
-2025-02-08T16:36:35.981+09:00  INFO 20072 --- [study-group] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-02-08T16:36:36.648+09:00  INFO 20072 --- [study-group] [    Test worker] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-02-08T16:36:38.696+09:00  WARN 20072 --- [study-group] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-02-08T16:36:39.792+09:00  INFO 20072 --- [study-group] [    Test worker] c.f.t.s.StudyGroupApplicationTests       : Started StudyGroupApplicationTests in 8.961 seconds (process running for 10.802)
+2025-02-09T19:00:17.778+09:00  INFO 10912 --- [study-group] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-02-09T19:00:18.511+09:00  INFO 10912 --- [study-group] [    Test worker] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-02-09T19:00:20.585+09:00  WARN 10912 --- [study-group] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-02-09T19:00:21.696+09:00  INFO 10912 --- [study-group] [    Test worker] c.f.t.s.StudyGroupApplicationTests       : Started StudyGroupApplicationTests in 8.447 seconds (process running for 10.947)
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
