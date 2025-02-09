@@ -14,7 +14,7 @@ public class CreateMeetupRequestDTO {
 
     private String title;
     private MeetingType meetingType;
-    private MeetupLocation location;
+    private MeetupLocation location = MeetupLocation.UNDEFINED;
     private String content;
     private LocalDateTime recruitmentEndDate;
     private LocalDateTime meetingStartDate;
@@ -22,19 +22,6 @@ public class CreateMeetupRequestDTO {
     private int maxParticipants;
     private int minParticipants;
     private boolean isOnline;
-
-    public CreateMeetupRequestDTO(Meetup meetup) {
-        this.title = meetup.getTitle();
-        this.meetingType = meetup.getMeetingType();
-        this.location = meetup.isOnline() ? null : meetup.getLocation();
-        this.content = meetup.getContent();
-        this.recruitmentEndDate = meetup.getRecruitmentEndDate();
-        this.meetingStartDate = meetup.getMeetingStartDate();
-        this.meetingEndDate = meetup.getMeetingEndDate();
-        this.maxParticipants = meetup.getMaxParticipants();
-        this.minParticipants = meetup.getMinParticipants();
-        this.isOnline = meetup.isOnline();
-    }
 
 }
 
