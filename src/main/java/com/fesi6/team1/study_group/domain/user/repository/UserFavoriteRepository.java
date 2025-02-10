@@ -3,6 +3,7 @@ package com.fesi6.team1.study_group.domain.user.repository;
 import com.fesi6.team1.study_group.domain.user.entity.UserFavorite;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -20,4 +21,5 @@ public interface UserFavoriteRepository extends JpaRepository<UserFavorite, Long
 
     Page<UserFavorite> findByUserId(Long userId, Pageable pageable);
 
+    Page<UserFavorite> findAll(Specification<UserFavorite> spec, Pageable pageable);
 }

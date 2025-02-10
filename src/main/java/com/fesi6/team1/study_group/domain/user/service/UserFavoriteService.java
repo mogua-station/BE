@@ -12,12 +12,14 @@ import com.fesi6.team1.study_group.domain.user.dto.WishlistMeetupResponseDTOList
 import com.fesi6.team1.study_group.domain.user.entity.User;
 import com.fesi6.team1.study_group.domain.user.entity.UserFavorite;
 import com.fesi6.team1.study_group.domain.user.repository.UserFavoriteRepository;
+import com.fesi6.team1.study_group.domain.user.specification.UserFavoriteSpecification;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -77,31 +79,44 @@ public class UserFavoriteService {
         userFavoriteRepository.delete(userFavorite);
     }
 
-    public WishlistMeetupResponseDTOList getUserWishlist(Long userId, int page, int limit) {
-        // 1. Pageable 생성 (page, limit, 정렬 기준)
-        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt")));
+    public WishlistMeetupResponseDTOList getUserWishlist(Long userId, int page, int limit, String orderBy, String type, String location) {
+        Pageable pageable = PageRequest.of(page, limit, getSortBy(orderBy));
+        Specification<UserFavorite> spec = Specification.where(UserFavoriteSpecification.hasUserId(userId));
 
-        // 2. 동적 쿼리 생성
-        // userFavoriteRepository에서 userId로 데이터를 필터링하고 페이지네이션을 적용하는 쿼리 실행
-        Page<UserFavorite> userFavorites = userFavoriteRepository.findByUserId(userId, pageable);
+        if (!"ALL".equals(type)) {
+            spec = spec.and(UserFavoriteSpecification.hasType(MeetingType.valueOf(type)));
+        }
+        if (!"ALL".equals(location)) {
+            spec = spec.and(UserFavoriteSpecification.hasLocation(location));
+        }
 
-        // 3. 결과 처리 (UserFavorite -> WishlistMeetupResponseDTO 변환)
+        Page<UserFavorite> userFavorites = userFavoriteRepository.findAll(spec, pageable);
+
         List<WishlistMeetupResponseDTO> wishlistMeetupResponseDTOList = userFavorites.getContent().stream()
-                .filter(userFavorite -> userFavorite.getMeetup() != null)  // Meetup이 null인 경우를 걸러냄
+                .filter(userFavorite -> userFavorite.getMeetup() != null)
                 .map(userFavorite -> new WishlistMeetupResponseDTO(userFavorite.getMeetup()))
                 .collect(Collectors.toList());
 
-        // 4. 페이지 정보 추가
-        Integer nextPage = userFavorites.hasNext() ? page + 1 : -1;  // 다음 페이지 번호 계산
-        boolean isLast = userFavorites.isLast();  // 마지막 페이지 여부 확인
+        Integer nextPage = userFavorites.hasNext() ? page + 1 : -1;
+        boolean isLast = userFavorites.isLast();
 
-        // 5. 추가 데이터 (nextPage, isLast) 포함
-        Map<String, Object> additionalData = new HashMap<>();
-        additionalData.put("nextPage", nextPage);
-        additionalData.put("isLast", isLast);
+        Map<String, Object> additionalData = Map.of(
+                "nextPage", nextPage,
+                "isLast", isLast
+        );
 
-        // 6. DTO 리스트와 추가 데이터 반환
         return new WishlistMeetupResponseDTOList(wishlistMeetupResponseDTOList, additionalData);
     }
 
+    private Sort getSortBy(String orderBy) {
+        switch (orderBy) {
+            case "deadline":
+                return Sort.by(Sort.Direction.ASC, "deadline"); // 마감일 오름차순 (임박순)
+            case "participant":
+                return Sort.by(Sort.Direction.DESC, "participantCount"); // 참여 인원 내림차순
+            case "latest":
+            default:
+                return Sort.by(Sort.Direction.DESC, "createdAt"); // 최신순
+        }
+    }
 }

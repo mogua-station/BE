@@ -59,32 +59,29 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
+        // 허용할 출처 명시 (기존 코드에서 잘 설정됨)
         configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:3000",
-                "https://mogua.vercel.app"
+                "http://localhost:3000",  // 로컬 개발 환경
+                "https://mogua.vercel.app"  // 배포된 프론트엔드
         ));
 
-        // 허용할 HTTP 메서드 명확하게 지정
+        // 허용할 HTTP 메서드 설정
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-        // 허용할 헤더 명확하게 지정
+        // 허용할 헤더 설정
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
 
-        // credentials 허용 (쿠키 포함 가능)
+        // 쿠키를 포함할 수 있도록 설정
         configuration.setAllowCredentials(true);
 
-        // 노출할 응답 헤더 설정
+        // 응답 헤더로 `Authorization`을 노출할 수 있게 설정
         configuration.setExposedHeaders(List.of("Authorization"));
 
-        // CORS 적용할 URL 패턴 등록
+        // CORS를 적용할 URL 패턴 등록
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 }
