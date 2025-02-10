@@ -59,26 +59,24 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 허용할 Origin 설정
-        configuration.setAllowedOrigins(List.of(
+        configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
-                "https://mogua-g109cgdv1-joshuayeyos-projects.vercel.app",
                 "https://mogua.vercel.app"
         ));
 
-        // 허용할 HTTP 메서드 설정 (명확하게)
+        // 허용할 HTTP 메서드 명확하게 지정
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-        // 허용할 헤더 설정 (보안 강화)
+        // 허용할 헤더 명확하게 지정
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
 
-        // 인증 정보 포함 허용 (credentials: 'include' 허용)
+        // credentials 허용 (쿠키 포함 가능)
         configuration.setAllowCredentials(true);
 
-        // 클라이언트에서 접근할 수 있도록 노출할 헤더 설정
+        // 노출할 응답 헤더 설정
         configuration.setExposedHeaders(List.of("Authorization"));
 
-        // CORS 설정을 적용할 경로 매핑
+        // CORS 적용할 URL 패턴 등록
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 

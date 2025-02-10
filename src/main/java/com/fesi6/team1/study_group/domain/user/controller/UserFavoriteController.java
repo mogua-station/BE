@@ -52,7 +52,11 @@ public class UserFavoriteController {
     public ResponseEntity<ApiResponse<List<WishlistMeetupResponseDTO>>> getWishlist(
             @PathVariable("userId") Long userId,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "limit", defaultValue = "10") int limit) {
+            @RequestParam(value = "limit", defaultValue = "10") int limit,
+            @RequestParam(value = "orderBy", defaultValue = "latest") String orderBy,
+            @RequestParam(value = "type", defaultValue = "ALL") String type,
+            @RequestParam(value = "location", defaultValue = "ALL") String location
+    ) {
         WishlistMeetupResponseDTOList wishlistMeetupResponseDTOList = userFavoriteService.getUserWishlist(userId,page,limit);
         ApiResponse<List<WishlistMeetupResponseDTO>> response = ApiResponse.successResponse(
                 wishlistMeetupResponseDTOList.getUserWishlist(), wishlistMeetupResponseDTOList.getAdditionalData()
