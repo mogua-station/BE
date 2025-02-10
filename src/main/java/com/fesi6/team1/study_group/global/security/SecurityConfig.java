@@ -25,7 +25,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private static final String[] AUTH_WHITELIST = {
-            "/user/kakao/**",// 카카오 로그인 콜백 URL
+            "/user/kakao/**", // 카카오 로그인 콜백 URL
             "/user/sign-up",
             "/user/sign-in",
             "/user/*/meetups/participating/**",
@@ -34,7 +34,8 @@ public class SecurityConfig {
             "/user/profile/*",
             "/user/reviews/received",
             "/meetups/list",
-            "/meetups/*"
+            "/meetups/*",
+            "/reviews/*"
     };
 
     @Bean
@@ -44,11 +45,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 추가
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> {
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                });
-
-        http.authorizeHttpRequests(auth -> {
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(AUTH_WHITELIST).permitAll();
                     auth.anyRequest().authenticated();
                 })
@@ -61,24 +59,24 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 허용할 Origin 설정 (뒤에 '/' 제거)
+        // 허용할 Origin 설정
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "https://mogua-g109cgdv1-joshuayeyos-projects.vercel.app",
                 "https://mogua.vercel.app"
         ));
 
-        // 모든 HTTP 메서드 허용
-        configuration.addAllowedMethod("*");
+        // 허용할 HTTP 메서드 설정 (명확하게)
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-        // 모든 헤더 허용
-        configuration.addAllowedHeader("*");
+        // 허용할 헤더 설정 (보안 강화)
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
 
-        // 인증 정보 포함 (credentials: 'include' 허용)
+        // 인증 정보 포함 허용 (credentials: 'include' 허용)
         configuration.setAllowCredentials(true);
 
         // 클라이언트에서 접근할 수 있도록 노출할 헤더 설정
-        configuration.addExposedHeader("Authorization");
+        configuration.setExposedHeaders(List.of("Authorization"));
 
         // CORS 설정을 적용할 경로 매핑
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -86,7 +84,6 @@ public class SecurityConfig {
 
         return source;
     }
-
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
