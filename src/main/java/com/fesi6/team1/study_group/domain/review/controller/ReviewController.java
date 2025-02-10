@@ -30,11 +30,11 @@ public class ReviewController {
      */
     @PostMapping
     public ResponseEntity<?> createReview(
-            @AuthenticationPrincipal String userId,
-            @RequestPart(required = false) MultipartFile image,
-            @RequestPart CreateReviewRequestDTO request) throws IOException {
+            @AuthenticationPrincipal Long userId,
+            @RequestPart(value="image",required = false) MultipartFile image,
+            @RequestPart("request") CreateReviewRequestDTO request) throws IOException {
 
-        reviewService.saveReview(request, Long.valueOf(userId), image);
+        reviewService.saveReview(request, userId, image);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Review created successfully"));
     }
 
