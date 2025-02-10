@@ -25,7 +25,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private static final String[] AUTH_WHITELIST = {
-            "/user/kakao/**", // 카카오 로그인 콜백 URL
+            "/user/kakao/**",// 카카오 로그인 콜백 URL
             "/user/sign-up",
             "/user/sign-in",
             "/user/*/meetups/participating/**",
@@ -34,8 +34,7 @@ public class SecurityConfig {
             "/user/profile/*",
             "/user/reviews/received",
             "/meetups/list",
-            "/meetups/*",
-            "/reviews/*"
+            "/meetups/*"
     };
 
     @Bean
@@ -45,8 +44,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 추가
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> {
+                .sessionManagement(session -> {
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                });
+
+        http.authorizeHttpRequests(auth -> {
                     auth.requestMatchers(AUTH_WHITELIST).permitAll();
                     auth.anyRequest().authenticated();
                 })
@@ -56,37 +58,37 @@ public class SecurityConfig {
     }
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 허용할 출처 명시 (기존 코드에서 잘 설정됨)
-        configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:3000",  // 로컬 개발 환경
-                "https://mogua.vercel.app"  // 배포된 프론트엔드
+        // 허용할 Origin 설정 (뒤에 '/' 제거)
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "https://mogua-g109cgdv1-joshuayeyos-projects.vercel.app",
+                "https://mogua.vercel.app"
         ));
 
-        // 허용할 HTTP 메서드 설정
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // 모든 HTTP 메서드 허용
+        configuration.addAllowedMethod("*");
 
-        // 허용할 헤더 설정
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+        // 모든 헤더 허용
+        configuration.addAllowedHeader("*");
 
-        // 쿠키를 포함할 수 있도록 설정
+        // 인증 정보 포함 (credentials: 'include' 허용)
         configuration.setAllowCredentials(true);
 
-        // 응답 헤더로 `Authorization`을 노출할 수 있게 설정
-        configuration.setExposedHeaders(List.of("Authorization"));
+        // 클라이언트에서 접근할 수 있도록 노출할 헤더 설정
+        configuration.addExposedHeader("Authorization");
 
-        // CORS를 적용할 URL 패턴 등록
+        // CORS 설정을 적용할 경로 매핑
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
 
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
