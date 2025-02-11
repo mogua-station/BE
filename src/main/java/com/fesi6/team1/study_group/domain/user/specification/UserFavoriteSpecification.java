@@ -20,7 +20,7 @@ public class UserFavoriteSpecification {
     public static Specification<UserFavorite> hasType(MeetingType type) {
         return (root, query, criteriaBuilder) -> {
             if (type != null) {
-                return criteriaBuilder.equal(root.get("type"), type);
+                return criteriaBuilder.equal(root.get("meetup").get("type"), type);  // 🔹 meetup을 통해 type 참조
             }
             return null;
         };

@@ -47,7 +47,6 @@ public class UserFavorite {
         this.updatedAt = LocalDateTime.now();  // 수정 시 현재 시간 설정
     }
 
-
     @Builder
     public UserFavorite(User user, Meetup meetup) {
         this.user = user;
