@@ -25,7 +25,7 @@ public class UserFavoriteController {
      */
     @PostMapping("/{meetupId}")
     public ResponseEntity<?> requestWishlist(@AuthenticationPrincipal Long userId,
-                                             @PathVariable Long meetupId) {
+                                             @PathVariable("meetupId") Long meetupId) {
         userFavoriteService.requestWishlist(meetupId, userId);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("찜 성공"));
     }
@@ -37,7 +37,7 @@ public class UserFavoriteController {
      */
     @DeleteMapping("/{meetupId}")
     public ResponseEntity<ApiResponse<?>> deleteWishlist(@AuthenticationPrincipal Long userId,
-                                                      @PathVariable Long meetupId) {
+                                                         @PathVariable("meetupId") Long meetupId) {
 
         userFavoriteService.deleteWishlist(meetupId, userId);
         return ResponseEntity.ok(ApiResponse.successWithMessage("찜 삭제 성공"));

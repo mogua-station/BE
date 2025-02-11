@@ -111,7 +111,7 @@ public class UserFavoriteService {
     private Sort getSortBy(String orderBy) {
         switch (orderBy) {
             case "deadline":
-                return Sort.by(Sort.Direction.ASC, "deadline"); // 마감일 오름차순 (임박순)
+                return Sort.by(Sort.Direction.ASC, "recruitmentEndDate"); // 마감일 오름차순 (임박순)
             case "participant":
                 return Sort.by(Sort.Direction.DESC, "participantCount"); // 참여 인원 내림차순
             case "latest":
