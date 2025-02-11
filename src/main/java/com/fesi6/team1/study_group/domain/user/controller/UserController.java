@@ -89,7 +89,11 @@ public class UserController {
      *
      **/
     @PostMapping("/kakao/callback")
-    public ResponseEntity<ApiResponse<?>> kakaoLogin(@RequestParam(value = "code") String code) {
+    public ResponseEntity<ApiResponse<?>> kakaoLogin(@RequestBody Map<String, String> requestBody) {
+        String code = requestBody.get("code");  // 🔹 Request Body에서 code 추출
+        if (code == null || code.isEmpty()) {
+            return ResponseEntity.badRequest().body(ApiResponse.errorResponse("Authorization code is missing"));
+        }
         String kakaoToken = kakaoService.getKakaoToken(code);
         KakaoUserInfoDTO kakaoUserInfoDto = kakaoService.getKakaoUserInfo(kakaoToken);
         User user = userService.kakaoSave(kakaoUserInfoDto);
