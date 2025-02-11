@@ -104,7 +104,8 @@ public class UserController {
         Map<String, Object> userData = Map.of(
                 "userId",user.getId(),
                 "email", kakaoUserInfoDto.getEmail(),
-                "name", kakaoUserInfoDto.getNickname()
+                "name", kakaoUserInfoDto.getNickname(),
+                "profileImg",user.getProfileImg()
         );
 
         return ResponseEntity.ok()
