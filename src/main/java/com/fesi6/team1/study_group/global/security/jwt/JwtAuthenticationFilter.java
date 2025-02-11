@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -22,12 +23,14 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtCookieUtil jwtCookieUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         String accessToken = getJwtFromRequest(request);
+        String refreshToken = getRefreshTokenFromRequest(request);  // 🔹 Refresh Token 가져오기
 
         if (accessToken != null) {
             try {
@@ -44,41 +47,61 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     throw new ExpiredJwtException(null, null, "Access token has expired");
                 }
             } catch (ExpiredJwtException e) {
-                // 토큰 만료 시 401 Unauthorized로 처리하고 JSON 형식으로 메시지 전송
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json");  // 응답 타입을 JSON으로 설정
-                response.getWriter().write("{\"status\": \"error\", \"data\": {}, \"message\": \"Access token has expired. Please refresh your token.\"}");
-                return;  // 더 이상 필터 체인을 진행하지 않음
+                if (refreshToken != null && jwtTokenProvider.validateRefreshToken(refreshToken)) {
+                    // 🔹 Refresh Token이 유효하면 새로운 Access Token 발급
+                    Long userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
+                    String newAccessToken = jwtTokenProvider.createAccessToken(userId);
+
+                    // 🔹 새 Access Token을 쿠키에 저장
+                    ResponseCookie newAccessTokenCookie = jwtCookieUtil.createAccessTokenCookie(newAccessToken);
+                    response.addHeader("Set-Cookie", newAccessTokenCookie.toString());
+
+                    // SecurityContext에 인증 정보 설정
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                    filterChain.doFilter(request, response);
+                    return;
+                } else {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"status\": \"error\", \"data\": {}, \"message\": \"Access token has expired. Please login again.\"}");
+                    return;
+                }
             } catch (JwtException e) {
-                // 다른 JwtException 처리를 추가할 수 있음
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.setContentType("application/json");  // 응답 타입을 JSON으로 설정
+                response.setContentType("application/json");
                 response.getWriter().write("{\"status\": \"error\", \"data\": {}, \"message\": \"Invalid token.\"}");
                 return;
             }
         }
+
         response.setHeader("Partitioned", "true");
         filterChain.doFilter(request, response);
     }
 
-    //    private String getJwtFromRequest(HttpServletRequest request) {
-//        String bearerToken = request.getHeader("Authorization");
-//        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-//            return bearerToken.substring(7); // "Bearer "를 제외한 JWT 추출
-//        }
-//        return null;
-//    }
     private String getJwtFromRequest(HttpServletRequest request) {
-        // 1. Authorization 헤더에서 읽기
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
 
-        // 2. 쿠키에서 읽기
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    private String getRefreshTokenFromRequest(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
                     return cookie.getValue();
                 }
             }
