@@ -102,6 +102,7 @@ public class UserController {
         ResponseCookie refreshTokenCookie = userService.createRefreshTokenCookie(user.getId());
 
         Map<String, Object> userData = Map.of(
+                "userId",user.getId(),
                 "email", kakaoUserInfoDto.getEmail(),
                 "name", kakaoUserInfoDto.getNickname()
         );

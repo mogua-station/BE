@@ -89,8 +89,6 @@ public class KakaoService {
             conn.setRequestProperty("Authorization", "Bearer " + accessToken);
             conn.setRequestProperty("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
-            System.out.println("Requesting Kakao User Info with accessToken: " + accessToken);
-
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     conn.getResponseCode() >= 200 && conn.getResponseCode() < 300
                             ? conn.getInputStream()
