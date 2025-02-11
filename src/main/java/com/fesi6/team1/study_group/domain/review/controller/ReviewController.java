@@ -75,11 +75,11 @@ public class ReviewController {
      */
     @PatchMapping("/{reviewId}")
     public ResponseEntity<?> updateReview(
-            @AuthenticationPrincipal String userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long reviewId,
             @RequestPart(required = false) MultipartFile image,
             @RequestPart UpdateReviewRequestDTO request) throws IOException {
-        reviewService.updateReview(request, reviewId, Long.valueOf(userId), image);
+        reviewService.updateReview(request, reviewId, userId, image);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Review updated successfully"));
     }
 
@@ -90,10 +90,10 @@ public class ReviewController {
      */
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> deleteReview(
-            @AuthenticationPrincipal String userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long reviewId) throws IOException {
 
-        reviewService.deleteReview(reviewId, Long.valueOf(userId));
+        reviewService.deleteReview(reviewId, userId);
         return ResponseEntity.ok().body(ApiResponse.successWithMessage("Review deleted successfully"));
     }
 
