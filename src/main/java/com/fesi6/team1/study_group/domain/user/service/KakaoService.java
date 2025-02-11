@@ -120,9 +120,6 @@ public class KakaoService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return userInfoDto;
     }
-
-
 }

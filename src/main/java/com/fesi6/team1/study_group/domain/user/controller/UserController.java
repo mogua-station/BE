@@ -12,6 +12,7 @@ import com.fesi6.team1.study_group.domain.user.service.KakaoService;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
 import com.fesi6.team1.study_group.global.common.response.ApiResponse;
 import com.fesi6.team1.study_group.global.security.jwt.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -87,7 +88,7 @@ public class UserController {
      * 카카오 로그인 & 회원가입
      *
      **/
-    @GetMapping("/kakao/callback")
+    @PostMapping("/kakao/callback")
     public ResponseEntity<ApiResponse<?>> kakaoLogin(@RequestParam(value = "code") String code) {
         String kakaoToken = kakaoService.getKakaoToken(code);
         KakaoUserInfoDTO kakaoUserInfoDto = kakaoService.getKakaoUserInfo(kakaoToken);
@@ -106,6 +107,7 @@ public class UserController {
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(ApiResponse.successWithDataAndMessage(Map.of("user", userData), "Login successful"));
     }
+
 
     /**
      *

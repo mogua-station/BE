@@ -34,7 +34,8 @@ public class SecurityConfig {
             "/user/profile/*",
             "/user/reviews/received",
             "/meetups/list",
-            "/meetups/*"
+            "/meetups/*",
+            "/wishlist/*"
     };
 
     @Bean
