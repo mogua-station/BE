@@ -33,7 +33,7 @@ jobs:
         echo "spring.application.name=study-group" > src/main/resources/application.properties
         # Kakao 설정
         echo "kakao.apikey=815edb7e2bc243e280f527ca4de5117c" >> src/main/resources/application.properties
-        echo "kakao.redirect-uri=http://localhost:3000/sign-in/callback/kakao" >> src/main/resources/application.properties
+        echo "kakao.redirect-uri=https://mogua.vercel.app/sign-in/callback/kakao" >> src/main/resources/application.properties
         #jwt 설정
         echo "jwt.secret.key=OssaD4FoPe7BreiqedEKuVmPXRbnvl24WCNUV7PIPmTpDZftVGC7Xrxd1UPxAw91YP8qlYK5lMlWwut44x0mg" >> src/main/resources/application.properties
         # DB 설정
