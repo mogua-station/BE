@@ -14,7 +14,7 @@ public class CreateMeetupRequestDTO {
 
     private String title;
     private MeetingType meetingType;
-    private MeetupLocation location = MeetupLocation.UNDEFINED;
+    private MeetupLocation location;
     private String content;
     private LocalDateTime recruitmentEndDate;
     private LocalDateTime meetingStartDate;
@@ -22,6 +22,5 @@ public class CreateMeetupRequestDTO {
     private int maxParticipants;
     private int minParticipants;
     private boolean isOnline;
-
 }
 

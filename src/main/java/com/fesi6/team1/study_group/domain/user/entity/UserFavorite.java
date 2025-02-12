@@ -21,11 +21,11 @@ public class UserFavorite {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;  // 찜 정보 ID (자동 증가)
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;  // 찜한 사용자 (User 엔티티와 관계 맺음)
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "meetup_id", nullable = false)
     private Meetup meetup;  // 찜한 모임 (Meetup 엔티티와 관계 맺음)
 

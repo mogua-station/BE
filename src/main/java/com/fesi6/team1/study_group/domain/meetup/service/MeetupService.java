@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -72,7 +73,7 @@ public class MeetupService {
                 .maxParticipants(request.getMaxParticipants())
                 .minParticipants(request.getMinParticipants())
                 .isOnline(request.isOnline())
-                .location(request.isOnline() ? null : MeetupLocation.valueOf(String.valueOf(request.getLocation())))
+                .location(request.isOnline() ? MeetupLocation.UNDEFINED : request.getLocation())
                 .build();
 
 

@@ -33,7 +33,7 @@ public class UserWrittenReviewResponseDTO {
         reviewId = review.getId();
         content = review.getContent();
         meetingEndDate = review.getMeetup().getMeetingEndDate();
-        thumbnail = review.getMeetup().getThumbnail();
+        thumbnail = review.getThumbnail();
         isEditabel = review.isEditable();
         reviewDate = review.getCreatedAt();
     }

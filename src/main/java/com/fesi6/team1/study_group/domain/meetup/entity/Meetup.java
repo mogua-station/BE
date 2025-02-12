@@ -50,7 +50,7 @@ public class Meetup {
 
     private String thumbnail;  // 모임 썸네일
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "host_id", nullable = false)
     private User host;  // 주최자 ID (User 엔티티와 관계 맺음)
 
