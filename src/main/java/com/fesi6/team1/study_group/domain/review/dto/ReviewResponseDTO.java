@@ -14,6 +14,7 @@ public class ReviewResponseDTO {
     private String userNickname;
     private String content;
     private int rating;
+    private String thumbnail;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -23,6 +24,7 @@ public class ReviewResponseDTO {
         userNickname = review.getUser().getNickname();
         content = review.getContent();
         rating = review.getRating();
+        thumbnail = review.getThumbnail();
         createdAt = review.getCreatedAt();
         updatedAt = review.getUpdatedAt();
     }

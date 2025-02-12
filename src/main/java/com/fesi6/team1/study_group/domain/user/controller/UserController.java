@@ -162,7 +162,6 @@ public class UserController {
                 )
         );
 
-        // Access Token과 Refresh Token을 쿠키로 반환하고 사용자 정보는 본문에 반환
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
