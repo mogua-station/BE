@@ -17,14 +17,22 @@ public class UserFavoriteSpecification {
     }
 
     // Type filter
-    public static Specification<UserFavorite> hasType(MeetingType type) {
+    public static Specification<UserFavorite> hasType(String type) {
         return (root, query, criteriaBuilder) -> {
-            if (type != null) {
-                return criteriaBuilder.equal(root.get("meetup").get("type"), type);  // 🔹 meetup을 통해 type 참조
+            if (type != null && !"ALL".equals(type)) {
+                try {
+                    // 대소문자 구분 없이 처리하기 위해 toUpperCase로 변환
+                    MeetingType meetingType = MeetingType.valueOf(type.toUpperCase());
+                    return criteriaBuilder.equal(root.get("meetup").get("type"), meetingType);
+                } catch (IllegalArgumentException e) {
+                    // 잘못된 type 값이 들어올 경우 null 반환
+                    return null;
+                }
             }
             return null;
         };
     }
+
 
     // Location filter
     public static Specification<UserFavorite> hasLocation(String location) {

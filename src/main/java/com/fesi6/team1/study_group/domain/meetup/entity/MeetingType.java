@@ -4,4 +4,3 @@ public enum MeetingType {
     TUTORING,  // 과외
     STUDY      // 스터디
 }
-

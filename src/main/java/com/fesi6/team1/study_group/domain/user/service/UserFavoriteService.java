@@ -84,7 +84,7 @@ public class UserFavoriteService {
         Specification<UserFavorite> spec = Specification.where(UserFavoriteSpecification.hasUserId(userId));
 
         if (!"ALL".equals(type)) {
-            spec = spec.and(UserFavoriteSpecification.hasType(MeetingType.valueOf(type)));
+            spec = spec.and(UserFavoriteSpecification.hasType(type));
         }
         if (!"ALL".equals(location)) {
             spec = spec.and(UserFavoriteSpecification.hasLocation(location));
