@@ -30,6 +30,7 @@ import static com.fesi6.team1.study_group.global.common.response.ApiResponse.suc
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin(origins = "https://mogua.vercel.app", allowCredentials = "true")
 @RequestMapping("/user")
 public class UserController {
 
