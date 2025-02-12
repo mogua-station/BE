@@ -62,12 +62,6 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-//        configuration.setAllowedOrigins(List.of(
-//                "http://localhost:3000",
-//                "https://mogua-g109cgdv1-joshuayeyos-projects.vercel.app",
-//                "https://mogua.vercel.app"
-//        ));
-
         configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
                 "https://localhost:3000",

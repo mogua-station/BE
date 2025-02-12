@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String accessToken = getJwtFromRequest(request);
-        String refreshToken = getRefreshTokenFromRequest(request);  // 🔹 Refresh Token 가져오기
+        String refreshToken = getRefreshTokenFromRequest(request);
 
         if (accessToken != null) {
             try {
@@ -78,9 +78,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
+        // accessToken이 없고 refreshToken만 있는 경우
+        if (refreshToken != null && jwtTokenProvider.validateRefreshToken(refreshToken)) {
+            // 🔹 Refresh Token이 유효하면 새로운 Access Token 발급
+            Long userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
+            String newAccessToken = jwtTokenProvider.createAccessToken(userId);
+
+            // 🔹 새 Access Token을 쿠키에 저장
+            ResponseCookie newAccessTokenCookie = jwtCookieUtil.createAccessTokenCookie(newAccessToken);
+            response.addHeader("Set-Cookie", newAccessTokenCookie.toString());
+
+            // SecurityContext에 인증 정보 설정
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+
         response.setHeader("Partitioned", "true");
         filterChain.doFilter(request, response);
     }
+
 
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
