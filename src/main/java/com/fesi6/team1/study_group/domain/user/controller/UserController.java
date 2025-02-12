@@ -134,8 +134,6 @@ public class UserController {
         );
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())  // Access Token 쿠키
-                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString()) // Refresh Token 쿠키
                 .body(ApiResponse.successWithDataAndMessage(wrappedUserData, "Sign-up successful"));
     }
 
