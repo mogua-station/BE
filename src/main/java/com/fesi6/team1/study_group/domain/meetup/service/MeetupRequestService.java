@@ -7,6 +7,7 @@ import com.fesi6.team1.study_group.domain.meetup.repository.MeetupRequestReposit
 import com.fesi6.team1.study_group.domain.user.entity.User;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
@@ -61,4 +62,5 @@ public class MeetupRequestService {
         meetup.setParticipantCount(meetup.getParticipantCount() + 1);
         meetupService.save(meetup);
     }
+
 }

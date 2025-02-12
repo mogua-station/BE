@@ -1,14 +1,12 @@
 package com.fesi6.team1.study_group.domain.meetup.service;
 
 import com.fesi6.team1.study_group.domain.meetup.dto.*;
-import com.fesi6.team1.study_group.domain.meetup.entity.MeetingType;
-import com.fesi6.team1.study_group.domain.meetup.entity.Meetup;
-import com.fesi6.team1.study_group.domain.meetup.entity.MeetupLocation;
-import com.fesi6.team1.study_group.domain.meetup.entity.MeetupStatus;
+import com.fesi6.team1.study_group.domain.meetup.entity.*;
 import com.fesi6.team1.study_group.domain.meetup.repository.MeetupRepository;
 import com.fesi6.team1.study_group.domain.meetup.specification.MeetupSpecification;
 import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTO;
 import com.fesi6.team1.study_group.domain.review.dto.UserWrittenReviewResponseDTOList;
+import com.fesi6.team1.study_group.domain.user.entity.User;
 import com.fesi6.team1.study_group.domain.user.service.UserService;
 import com.fesi6.team1.study_group.global.common.s3.S3FileService;
 import jakarta.persistence.EntityNotFoundException;
@@ -60,6 +58,7 @@ public class MeetupService {
             String uploadedFileName = s3FileService.uploadFile(image, path);
             fileName = basePath + uploadedFileName; // 전체 경로 포함한 파일 이름 생성
         }
+        User host = userService.findById(userId);
 
         Meetup meetup = Meetup.builder()
                 .title(request.getTitle())
@@ -69,14 +68,14 @@ public class MeetupService {
                 .meetingStartDate(request.getMeetingStartDate())
                 .meetingEndDate(request.getMeetingEndDate())
                 .thumbnail(fileName)
-                .host(userService.findById(userId))
+                .host(host)
                 .maxParticipants(request.getMaxParticipants())
                 .minParticipants(request.getMinParticipants())
                 .isOnline(request.getIsOnline())
                 .location(request.getIsOnline() ? MeetupLocation.UNDEFINED : request.getLocation())
                 .build();
-
         meetupRepository.save(meetup);
+
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("meetupId", meetup.getId());
         return responseData;

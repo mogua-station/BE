@@ -4,6 +4,7 @@ import com.fesi6.team1.study_group.domain.meetup.dto.CreateMeetupRequestDTO;
 import com.fesi6.team1.study_group.domain.meetup.dto.MeetupListResponseDTO;
 import com.fesi6.team1.study_group.domain.meetup.dto.MeetupResponseDTO;
 import com.fesi6.team1.study_group.domain.meetup.dto.UpdateMeetupRequestDTO;
+import com.fesi6.team1.study_group.domain.meetup.service.MeetupRequestService;
 import com.fesi6.team1.study_group.domain.meetup.service.MeetupService;
 import com.fesi6.team1.study_group.global.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class MeetupController {
 
     private final MeetupService meetupService;
+    private final MeetupRequestService meetupRequestService;
 
     /**
      *
@@ -37,6 +39,7 @@ public class MeetupController {
             @RequestPart(value = "request") CreateMeetupRequestDTO request
     ) throws IOException{
         Map<String, Object> responseData = meetupService.saveMeetup(image, request, userId);
+        meetupRequestService.requestMeetup((Long) responseData.get("meetupId"), userId);
         return ResponseEntity.ok()
                 .body(ApiResponse.successWithDataAndMessage(responseData, "Meetup created successfully"));
     }

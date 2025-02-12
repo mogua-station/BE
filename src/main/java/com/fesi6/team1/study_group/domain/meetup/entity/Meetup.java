@@ -71,7 +71,7 @@ public class Meetup {
     private MeetupStatus status = RECRUITING;
 
     @Column(name = "participant_count", nullable = false)
-    private Integer participantCount = 0;
+    private Integer participantCount = 1;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
