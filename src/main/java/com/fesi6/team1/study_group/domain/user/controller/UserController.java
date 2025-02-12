@@ -133,8 +133,8 @@ public class UserController {
         );
 
         return ResponseEntity.ok()
-//                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
-//                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(ApiResponse.successWithDataAndMessage(wrappedUserData, "Sign-up successful"));
     }
 
