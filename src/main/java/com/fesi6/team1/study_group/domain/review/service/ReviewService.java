@@ -48,10 +48,13 @@ public class ReviewService {
     public void saveReview(CreateReviewRequestDTO request, Long userId, MultipartFile image) throws IOException {
 
         String path = "reviewImage";
-        String fileName;
+        String fileName = null;
         String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/reviewImage/";
-        String uploadedFileName = s3FileService.uploadFile(image, path);
-        fileName = basePath + uploadedFileName; // 전체 경로 포함한 파일 이름 생성
+
+        if (image != null && !image.isEmpty()) {
+            String uploadedFileName = s3FileService.uploadFile(image, path);
+            fileName = basePath + uploadedFileName; // 전체 경로 포함한 파일 이름 생성
+        }
 
         Long meetupId = request.getMeetupId();
         MeetupUser meetupUser = meetupUserService.findByMeetupIdAndUserId(meetupId, userId)
@@ -69,12 +72,17 @@ public class ReviewService {
                 .content(request.getContent())
                 .rating(request.getRating())
                 .build();
-        review.setThumbnail(fileName);
+
+        if (fileName != null) {
+            review.setThumbnail(fileName);
+        }
+
         reviewRepository.save(review);
 
         meetupUser.setHasReview(true);
         meetupUserService.save(meetupUser);
     }
+
 
     public ReviewResponseDTO getReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
