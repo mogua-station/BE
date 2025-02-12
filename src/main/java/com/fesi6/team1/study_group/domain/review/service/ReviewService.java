@@ -123,10 +123,14 @@ public class ReviewService {
         if (!review.getUser().getId().equals(userId)) {
             throw new IllegalStateException("리뷰를 삭제할 권한이 없습니다.");
         }
+
         String currentThumbnail = review.getThumbnail();
-        String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/reviewImage/";
-        String oldFilePath = currentThumbnail.replace(basePath, ""); // S3 경로에서 파일 경로 추출
-        s3FileService.deleteFile(oldFilePath);
+        if (currentThumbnail != null && !currentThumbnail.isEmpty()) {
+            String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/reviewImage/";
+            String oldFilePath = currentThumbnail.replace(basePath, ""); // S3 경로에서 파일 경로 추출
+            s3FileService.deleteFile(oldFilePath);
+        }
+
         reviewRepository.delete(review);
 
         MeetupUser meetupUser = meetupUserService.findByMeetupIdAndUserId(
