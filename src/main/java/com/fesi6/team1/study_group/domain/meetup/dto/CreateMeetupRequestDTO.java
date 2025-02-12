@@ -21,6 +21,6 @@ public class CreateMeetupRequestDTO {
     private LocalDateTime meetingEndDate;
     private int maxParticipants;
     private int minParticipants;
-    private boolean isOnline;
+    private Boolean isOnline;
 }
 

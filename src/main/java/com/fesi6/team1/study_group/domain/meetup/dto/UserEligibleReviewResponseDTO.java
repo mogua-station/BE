@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class UserEligibleReviewResponseDTO {
     private Long meetupId;
     private MeetupStatus status;
-    private boolean isOnline;
+    private Boolean isOnline;
     private MeetupLocation location;
     private String title;
     private int maxParticipants;
@@ -28,7 +28,7 @@ public class UserEligibleReviewResponseDTO {
     public UserEligibleReviewResponseDTO(Meetup meetup, int count) {
         meetupId = meetup.getId();
         status = meetup.getStatus();
-        isOnline = meetup.isOnline();
+        isOnline = meetup.getIsOnline();
         location = meetup.getLocation();
         title = meetup.getTitle();
         maxParticipants = meetup.getMaxParticipants();

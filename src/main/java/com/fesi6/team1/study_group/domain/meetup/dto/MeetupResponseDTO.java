@@ -24,7 +24,7 @@ public class MeetupResponseDTO {
     private final LocalDateTime meetingEndDate;
     private final int maxParticipants;
     private final int minParticipants;
-    private final boolean isOnline;
+    private final Boolean isOnline;
     private final String thumbnail;
     private final String hostNickname;
     private final Long hostId;
@@ -36,7 +36,7 @@ public class MeetupResponseDTO {
         this.title = meetup.getTitle();
         this.meetingType = meetup.getMeetingType();
 
-        if (meetup.isOnline()) {
+        if (meetup.getIsOnline()) {
             this.location = null;
         } else {
             this.location = meetup.getLocation();
@@ -48,7 +48,7 @@ public class MeetupResponseDTO {
         this.meetingEndDate = meetup.getMeetingEndDate();
         this.maxParticipants = meetup.getMaxParticipants();
         this.minParticipants = meetup.getMinParticipants();
-        this.isOnline = meetup.isOnline();
+        this.isOnline = meetup.getIsOnline();
         this.thumbnail = meetup.getThumbnail();
         this.hostNickname = meetup.getHost().getNickname();
         this.hostId = meetup.getHost().getId();

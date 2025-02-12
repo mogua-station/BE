@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class WishlistMeetupResponseDTO {
     private Long meetupId;
     private MeetingType meetingType;
-    private boolean isOnline;
+    private Boolean isOnline;
     private MeetupStatus meetupStatus;
     private MeetupLocation location;
     private String title;
@@ -33,7 +33,7 @@ public class WishlistMeetupResponseDTO {
     public WishlistMeetupResponseDTO(Meetup meetup) {
         meetupId = meetup.getId();
         meetingType = meetup.getMeetingType();
-        isOnline = meetup.isOnline();
+        isOnline = meetup.getIsOnline();
         meetupStatus = meetup.getStatus();
         location = meetup.getLocation();
         title = meetup.getTitle();

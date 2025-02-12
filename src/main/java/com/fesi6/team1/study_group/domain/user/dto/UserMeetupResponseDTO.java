@@ -23,7 +23,7 @@ public class UserMeetupResponseDTO {
 
     public UserMeetupResponseDTO(Meetup meetup, boolean isFavorite, Long userId, Long profileUserId) {
         this.title = meetup.getTitle();
-        this.location = meetup.isOnline() ? null : meetup.getLocation();
+        this.location = meetup.getIsOnline() ? null : meetup.getLocation();
         this.currentParticipants = meetup.getMeetupUsers().size(); // 현재 참가자 수
         this.recruitmentStartDate = meetup.getCreatedAt();
         this.recruitmentEndDate = meetup.getRecruitmentEndDate();

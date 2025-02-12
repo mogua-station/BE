@@ -61,7 +61,7 @@ public class Meetup {
     private int minParticipants;  // 최소 인원
 
     @Column(nullable = false)
-    private boolean isOnline;  // 온/오프라인 여부
+    private Boolean isOnline;  // 온/오프라인 여부
 
     @OneToMany(mappedBy = "meetup", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MeetupUser> meetupUsers;
@@ -82,7 +82,7 @@ public class Meetup {
     @Builder
     public Meetup(String title, MeetingType meetingType, MeetupLocation location, String content, LocalDateTime recruitmentEndDate,
                   LocalDateTime meetingStartDate, LocalDateTime meetingEndDate, String thumbnail,
-                  User host, int maxParticipants, int minParticipants, boolean isOnline) {
+                  User host, int maxParticipants, int minParticipants, Boolean isOnline) {
         this.title = title;
         this.meetingType = meetingType;
         this.location = location;

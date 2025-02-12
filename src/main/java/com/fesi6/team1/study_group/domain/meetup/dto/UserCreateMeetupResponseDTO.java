@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class UserCreateMeetupResponseDTO {
     private Long meetupId;
     private MeetupStatus meetupStatus;
-    private boolean isOnline;
+    private Boolean isOnline;
     private MeetupLocation location;
     private String title;
     private LocalDateTime recruitmentStartDate;
@@ -26,7 +26,7 @@ public class UserCreateMeetupResponseDTO {
     public UserCreateMeetupResponseDTO(Meetup meetup) {
         meetupId = meetup.getId();
         meetupStatus = meetup.getStatus();
-        isOnline = meetup.isOnline();
+        isOnline = meetup.getIsOnline();
         location = meetup.getLocation();
         title = meetup.getTitle();
         recruitmentStartDate = meetup.getCreatedAt();

@@ -72,8 +72,8 @@ public class MeetupService {
                 .host(userService.findById(userId))
                 .maxParticipants(request.getMaxParticipants())
                 .minParticipants(request.getMinParticipants())
-                .isOnline(request.isOnline())
-                .location(request.isOnline() ? MeetupLocation.UNDEFINED : request.getLocation())
+                .isOnline(request.getIsOnline())
+                .location(request.getIsOnline() ? MeetupLocation.UNDEFINED : request.getLocation())
                 .build();
 
         meetupRepository.save(meetup);
