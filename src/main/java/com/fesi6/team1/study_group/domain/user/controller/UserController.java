@@ -114,7 +114,6 @@ public class UserController {
                 .body(ApiResponse.successWithDataAndMessage(Map.of("user", userData), "Login successful"));
     }
 
-
     /**
      *
      * 커스텀 회원가입
@@ -130,10 +129,12 @@ public class UserController {
         ResponseCookie refreshTokenCookie = userService.createRefreshTokenCookie(userId);
 
         Map<String, Object> wrappedUserData = Map.of(
-                "user", responseData.get("user")  // 사용자 데이터 감싸기
+                "user", responseData.get("user")
         );
 
         return ResponseEntity.ok()
+//                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+//                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(ApiResponse.successWithDataAndMessage(wrappedUserData, "Sign-up successful"));
     }
 
