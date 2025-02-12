@@ -97,10 +97,6 @@ public class Meetup {
         this.isOnline = isOnline;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-
-        if (this.isOnline) {
-            this.location = null;
-        }
     }
 
     public void updateStatusIfNeeded() {

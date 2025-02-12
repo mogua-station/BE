@@ -76,7 +76,6 @@ public class MeetupService {
                 .location(request.isOnline() ? MeetupLocation.UNDEFINED : request.getLocation())
                 .build();
 
-
         meetupRepository.save(meetup);
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("meetupId", meetup.getId());
