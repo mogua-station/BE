@@ -81,7 +81,8 @@ public class UserFavoriteService {
 
     public WishlistMeetupResponseDTOList getUserWishlist(Long userId, int page, int limit, String orderBy, String type, String location) {
         Pageable pageable = PageRequest.of(page, limit, getSortBy(orderBy));
-        Specification<UserFavorite> spec = Specification.where(UserFavoriteSpecification.hasUserId(userId));
+        Specification<UserFavorite> spec = Specification.where(UserFavoriteSpecification.hasUserId(userId))
+                .and(UserFavoriteSpecification.hasValidRecruitmentPeriod());
 
         if (!"ALL".equals(type)) {
             spec = spec.and(UserFavoriteSpecification.hasType(type));
