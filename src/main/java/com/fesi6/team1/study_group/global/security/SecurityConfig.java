@@ -35,14 +35,15 @@ public class SecurityConfig {
             "/user/reviews/received",
             "/meetups/list",
             "/meetups/*",
-            "/wishlist/*"
+            "/wishlist/*",
+            "/reviews/list/**"
     };
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 추가
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> {
