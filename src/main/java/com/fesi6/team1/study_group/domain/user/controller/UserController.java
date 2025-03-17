@@ -34,14 +34,14 @@ import static com.fesi6.team1.study_group.global.common.response.ApiResponse.suc
 public class UserController {
 
     private final UserService userService;
+    private final KakaoService kakaoService;
     private final ReviewService reviewService;
     private final MeetupService meetupService;
-    private final KakaoService kakaoService;
     private final JwtTokenProvider jwtTokenProvider;
 
     /**
      *
-     * Access Token 재발급 (Refresh Token 사용)
+     * Access Token 재발급
      *
      */
     @PostMapping("/refresh-token")
@@ -55,7 +55,6 @@ public class UserController {
         try {
             ResponseCookie newAccessTokenCookie = userService.reissueAccessToken(refreshToken);
 
-            // 추가 데이터로 새로운 Access Token 정보 전달
             Map<String, Object> additionalData = Map.of(
                     "newAccessToken", newAccessTokenCookie.getValue(),
                     "message", "Access token reissued successfully"
@@ -90,7 +89,7 @@ public class UserController {
      **/
     @PostMapping("/kakao/callback")
     public ResponseEntity<ApiResponse<?>> kakaoLogin(@RequestBody Map<String, String> requestBody) {
-        String code = requestBody.get("code");  // 🔹 Request Body에서 code 추출
+        String code = requestBody.get("code");
         if (code == null || code.isEmpty()) {
             return ResponseEntity.badRequest().body(ApiResponse.errorResponse("Authorization code is missing"));
         }
@@ -99,19 +98,10 @@ public class UserController {
         User user = userService.kakaoSave(kakaoUserInfoDto);
 
         ResponseCookie accessTokenCookie = userService.createAccessTokenCookie(user.getId());
-        ResponseCookie refreshTokenCookie = userService.createRefreshTokenCookie(user.getId());
-
-        Map<String, Object> userData = Map.of(
-                "userId",user.getId(),
-                "email", kakaoUserInfoDto.getEmail(),
-                "name", kakaoUserInfoDto.getNickname(),
-                "profileImg",user.getProfileImg()
-        );
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                .body(ApiResponse.successWithDataAndMessage(Map.of("user", userData), "Login successful"));
+                .body(ApiResponse.successWithMessage("로그인 성공"));
     }
 
     /**
@@ -140,19 +130,16 @@ public class UserController {
 
     /**
      *
-     * 커스텀 로그인 (Access Token + Refresh Token 발급)
+     * 커스텀 로그인
      *
      **/
     @PostMapping("/sign-in")
     public ResponseEntity<ApiResponse<?>> login(@RequestBody UserLoginRequestDTO request) throws IOException {
-        // 로그인 서비스 호출 (JWT 토큰과 사용자 정보 반환)
-        UserLoginResponseDTO userResponse = userService.customLogin(request);
 
-        // Access Token & Refresh Token 생성
+        UserLoginResponseDTO userResponse = userService.customLogin(request);
         ResponseCookie accessTokenCookie = userService.createAccessTokenCookie(userResponse.getId());
         ResponseCookie refreshTokenCookie = userService.createRefreshTokenCookie(userResponse.getId());
 
-        // 사용자 정보를 "user"로 감싼 Map 생성
         Map<String, Object> responseData = Map.of(
                 "user", Map.of(
                         "userId", userResponse.getId(),

@@ -23,7 +23,7 @@ public class Meetup {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // 모임 ID (자동 증가)
+    private Long id;  // 모임 ID
 
     @Column(nullable = false)
     private String title;  // 모임 제목
@@ -52,7 +52,7 @@ public class Meetup {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "host_id", nullable = false)
-    private User host;  // 주최자 ID (User 엔티티와 관계 맺음)
+    private User host;
 
     @Column(nullable = false)
     private int maxParticipants;  // 모집 인원

@@ -52,11 +52,10 @@ public class MeetupService {
         String fileName;
         String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/meetupImage/";
         if (image == null) {
-            fileName = basePath + "defaultProfileImages.png"; // 전체 경로 포함한 파일 이름 생성
+            fileName = basePath + "defaultProfileImages.png";
         } else {
-            // 이미지 업로드 (파일 이름만 반환받음)
             String uploadedFileName = s3FileService.uploadFile(image, path);
-            fileName = basePath + uploadedFileName; // 전체 경로 포함한 파일 이름 생성
+            fileName = basePath + uploadedFileName;
         }
         User host = userService.findById(userId);
 
@@ -98,7 +97,7 @@ public class MeetupService {
             String currentThumbnail = meetup.getThumbnail();
             boolean isDefaultImage = currentThumbnail != null && currentThumbnail.equals(basePath + "defaultProfileImages.png");
             if (!isDefaultImage && currentThumbnail != null) {
-                String oldFilePath = currentThumbnail.replace(basePath, ""); // S3 경로에서 파일 경로 추출
+                String oldFilePath = currentThumbnail.replace(basePath, "");
                 s3FileService.deleteFile(oldFilePath);
             }
             String uploadedFileName = s3FileService.uploadFile(image, path);
@@ -107,7 +106,7 @@ public class MeetupService {
             String currentThumbnail = meetup.getThumbnail();
             boolean isDefaultImage = currentThumbnail != null && currentThumbnail.equals(basePath + "defaultProfileImages.png");
             if (!isDefaultImage && currentThumbnail != null) {
-                String oldFilePath = currentThumbnail.replace(basePath, ""); // S3 경로에서 파일 경로 추출
+                String oldFilePath = currentThumbnail.replace(basePath, "");
                 s3FileService.deleteFile(oldFilePath);
             }
             meetup.setThumbnail(basePath + "defaultProfileImages.png");
@@ -127,7 +126,7 @@ public class MeetupService {
         String currentThumbnail = meetup.getThumbnail();
         String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/meetupImage/";
         if (currentThumbnail != null && !currentThumbnail.equals(basePath + "defaultProfileImages.png")) {
-            String oldFilePath = currentThumbnail.replace(basePath, ""); // S3 경로에서 파일 경로 추출
+            String oldFilePath = currentThumbnail.replace(basePath, "");
             s3FileService.deleteFile(oldFilePath);
         }
 
@@ -184,13 +183,11 @@ public class MeetupService {
 
         Page<Meetup> meetups = meetupRepository.findAll(spec, pageable);
 
-        // 상태 업데이트 및 저장
         List<Meetup> updatedMeetups = meetups.stream()
                 .peek(Meetup::updateStatusIfNeeded)
                 .collect(Collectors.toList());
         meetupRepository.saveAll(updatedMeetups);
 
-        // DTO 변환
         List<MeetupResponseDTO> meetupResponseList = updatedMeetups.stream()
                 .map(MeetupResponseDTO::new)
                 .collect(Collectors.toList());
@@ -225,11 +222,10 @@ public class MeetupService {
 
         Page<Meetup> wishlistMeetup = meetupRepository.findByHostIdAndMeetingType(userId, type, pageable);
 
-        // 상태 업데이트
         wishlistMeetup.getContent().forEach(Meetup::updateStatusIfNeeded);
 
         List<UserCreateMeetupResponseDTO> userCreateMeetupResponseDTOList = wishlistMeetup.getContent().stream()
-                .map(UserCreateMeetupResponseDTO::new) // 생성자를 통해 DTO로 변환
+                .map(UserCreateMeetupResponseDTO::new)
                 .collect(Collectors.toList());
 
         Integer nextPage = wishlistMeetup.hasNext() ? page + 1 : -1;

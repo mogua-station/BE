@@ -53,7 +53,7 @@ public class ReviewService {
 
         if (image != null && !image.isEmpty()) {
             String uploadedFileName = s3FileService.uploadFile(image, path);
-            fileName = basePath + uploadedFileName; // 전체 경로 포함한 파일 이름 생성
+            fileName = basePath + uploadedFileName;
         }
 
         Long meetupId = request.getMeetupId();
@@ -76,9 +76,7 @@ public class ReviewService {
         if (fileName != null) {
             review.setThumbnail(fileName);
         }
-
         reviewRepository.save(review);
-
         meetupUser.setHasReview(true);
         meetupUserService.save(meetupUser);
     }
@@ -105,7 +103,7 @@ public class ReviewService {
             boolean isDefaultImage = currentThumbnail != null && currentThumbnail.equals(basePath + "defaultProfileImages.png");
 
             if (!isDefaultImage && currentThumbnail != null) {
-                String oldFilePath = currentThumbnail.replace(basePath, ""); // S3 경로에서 파일 경로 추출
+                String oldFilePath = currentThumbnail.replace(basePath, "");
                 s3FileService.deleteFile(oldFilePath);
             }
             String uploadedFileName = s3FileService.uploadFile(image, path);
@@ -127,7 +125,7 @@ public class ReviewService {
         String currentThumbnail = review.getThumbnail();
         if (currentThumbnail != null && !currentThumbnail.isEmpty()) {
             String basePath = "https://fesi6.s3.dualstack.ap-southeast-2.amazonaws.com/reviewImage/";
-            String oldFilePath = currentThumbnail.replace(basePath, ""); // S3 경로에서 파일 경로 추출
+            String oldFilePath = currentThumbnail.replace(basePath, "");
             s3FileService.deleteFile(oldFilePath);
         }
 
@@ -141,7 +139,7 @@ public class ReviewService {
     }
 
     public ReviewResponseDTOList getReviewsByMeetupId(Long meetupId, Integer page, Integer limit) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 컬럼을 기준으로 정렬
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt")));
         Page<Review> reviewPage = reviewRepository.findByMeetupId(meetupId, pageable);
 
         List<ReviewResponseDTO> reviewResponseDTOList = reviewPage.getContent().stream()
@@ -162,18 +160,14 @@ public class ReviewService {
     }
 
     public UserEligibleReviewResponseDTOList getUserEligibleReviewResponse(Long userId, MeetingType type, Integer page, Integer limit) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt"))); // createdAt 기준으로 정렬
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc("createdAt")));
 
-        // 종료된 모임 중 리뷰 작성 가능 데이터 필터링
         Page<MeetupUser> meetupUserPage = meetupUserService.findEligibleReviews(userId, type, pageable);
 
         List<UserEligibleReviewResponseDTO> userEligibleReviewResponseDTOList = meetupUserPage.getContent().stream()
                 .map(meetupUser -> {
                     Meetup meetup = meetupUser.getMeetup();
-                    // 상태 업데이트
-                    meetup.updateStatusIfNeeded(); // 상태 업데이트
-
-                    // UserEligibleReviewResponseDTO 생성
+                    meetup.updateStatusIfNeeded();
                     return new UserEligibleReviewResponseDTO(
                             meetup,
                             meetupUserService.getParticipantsCount(meetup.getId())
@@ -181,8 +175,8 @@ public class ReviewService {
                 })
                 .collect(Collectors.toList());
 
-        Integer nextPage = meetupUserPage.hasNext() ? page + 1 : -1; // 다음 페이지 확인
-        boolean isLast = meetupUserPage.isLast(); // 마지막 페이지인지 확인
+        Integer nextPage = meetupUserPage.hasNext() ? page + 1 : -1;
+        boolean isLast = meetupUserPage.isLast();
         Map<String, Object> additionalData = new HashMap<>();
         additionalData.put("nextPage", nextPage);
         additionalData.put("isLast", isLast);
@@ -192,17 +186,15 @@ public class ReviewService {
 
 
     public UserWrittenReviewResponseDTOList getUserWrittenReviewResponse(Long userId, MeetingType type, Integer page, Integer limit) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.desc("createdAt"))); // createdAt 컬럼을 기준으로 정렬
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.desc("createdAt")));
 
-        // 유저가 작성한 리뷰만 가져옴
         Page<Review> reviewPage = reviewRepository.findByUserIdAndMeetingType(userId, type, pageable);
 
         List<UserWrittenReviewResponseDTO> userWrittenReviewResponseDTOList = reviewPage.getContent().stream()
                 .map(review -> {
-                    // 모임 종료일 + 5일 이내면 isEditable을 true로 설정
                     LocalDateTime reviewPeriodEnd = review.getMeetup().getMeetingEndDate().plusDays(5);
                     boolean isEditable = review.getCreatedAt().isBefore(reviewPeriodEnd);
-                    review.setEditable(isEditable); // isEditable 값 갱신
+                    review.setEditable(isEditable);
                     return new UserWrittenReviewResponseDTO(review);
                 })
                 .collect(Collectors.toList());
@@ -217,27 +209,21 @@ public class ReviewService {
 
 
     public UserTutoringReviewResponseDTOList getUserTutoringReview(Long userId, Integer page, Integer limit) {
-        // Pageable 설정 (페이지, 한 페이지에 보여줄 개수, 정렬 기준)
-        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.desc("createdAt"))); // createdAt 기준으로 정렬
+
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.desc("createdAt")));
         MeetingType type = MeetingType.valueOf("TUTORING");
-        // 튜터링 모임에 대한 리뷰를 가져오기 위한 쿼리
         Page<Review> reviewPage = reviewRepository.findByHostIdAndMeetingType(userId, type, pageable);
 
-        // 3. 리뷰를 DTO로 변환
         List<UserTutoringReviewResponseDTO> userTutoringReviewResponseDTOList = reviewPage.getContent().stream()
-                .map(review -> new UserTutoringReviewResponseDTO(review)) // 리뷰 -> DTO 변환
+                .map(review -> new UserTutoringReviewResponseDTO(review))
                 .collect(Collectors.toList());
+        Integer nextPage = reviewPage.hasNext() ? page + 1 : -1;
+        boolean isLast = reviewPage.isLast();
 
-        // 4. 페이지 정보 추가
-        Integer nextPage = reviewPage.hasNext() ? page + 1 : -1; // 다음 페이지 번호 계산
-        boolean isLast = reviewPage.isLast(); // 마지막 페이지 여부 확인
-
-        // 5. 추가 데이터 (nextPage, isLast) 포함
         Map<String, Object> additionalData = new HashMap<>();
         additionalData.put("nextPage", nextPage);
         additionalData.put("isLast", isLast);
 
-        // 6. DTO 리스트와 추가 데이터 반환
         return new UserTutoringReviewResponseDTOList(userTutoringReviewResponseDTOList, additionalData);
     }
 

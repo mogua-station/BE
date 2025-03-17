@@ -73,7 +73,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // 🔹 accessToken이 없고 refreshToken만 있는 경우, 새로운 accessToken 발급
         if (accessToken == null && refreshToken != null && jwtTokenProvider.validateRefreshToken(refreshToken)) {
             Long userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
             String newAccessToken = jwtTokenProvider.createAccessToken(userId);

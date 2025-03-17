@@ -23,11 +23,9 @@ public class UserFavoriteSpecification {
         return (root, query, criteriaBuilder) -> {
             if (type != null && !"ALL".equals(type)) {
                 try {
-                    // 대소문자 구분 없이 처리하기 위해 toUpperCase로 변환
                     MeetingType meetingType = MeetingType.valueOf(type.toUpperCase());
                     return criteriaBuilder.equal(root.get("meetup").get("type"), meetingType);
                 } catch (IllegalArgumentException e) {
-                    // 잘못된 type 값이 들어올 경우 null 반환
                     return null;
                 }
             }

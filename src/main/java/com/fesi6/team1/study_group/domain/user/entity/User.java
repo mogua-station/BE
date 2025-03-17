@@ -47,7 +47,7 @@ public class User {
     private String bio = "";
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference  // 순환 참조 방지
+    @JsonManagedReference
     private List<UserTag> tags = new ArrayList<>();
 
     private String refreshToken;

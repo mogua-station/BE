@@ -21,7 +21,7 @@ public class MeetupRequestService {
     private final UserService userService;
 
     public void requestMeetup(Long meetupId, Long userId) {
-        // 1. 유효성 검사
+        // 1. 유저 및 모임 확인
         Meetup meetup = meetupService.findById(meetupId);
         User user = userService.findById(userId);
 

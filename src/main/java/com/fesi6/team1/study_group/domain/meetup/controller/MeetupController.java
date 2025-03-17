@@ -55,7 +55,7 @@ public class MeetupController {
             @RequestPart(value ="image",required = false) MultipartFile image,
             @RequestPart UpdateMeetupRequestDTO request) throws IOException, IllegalAccessException {
         meetupService.updateMeetup(image, request, userId, meetupId);
-        return ResponseEntity.ok().body(ApiResponse.successWithMessage("Meetup updated successfully"));
+        return ResponseEntity.ok().body(ApiResponse.successWithMessage("모임 수정 성공"));
     }
 
     /**
@@ -68,7 +68,7 @@ public class MeetupController {
             @AuthenticationPrincipal Long userId,
             @PathVariable("meetupId") Long meetupId) throws IllegalAccessException {
         meetupService.deleteMeetup(userId, meetupId);
-        return ResponseEntity.ok().body(ApiResponse.successWithMessage("Meetup deleted successfully"));
+        return ResponseEntity.ok().body(ApiResponse.successWithMessage("모임 삭제 성공"));
     }
 
     /**

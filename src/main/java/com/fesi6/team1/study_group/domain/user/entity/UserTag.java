@@ -18,7 +18,7 @@ public class UserTag {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference  // 순환 참조 방지
+    @JsonBackReference
     private User user;
 
     @Column(nullable = false)

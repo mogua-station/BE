@@ -43,7 +43,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // 토큰 유효성 검증 (accessToken)
     public boolean validateAccessToken(String token) {
         try {
             Jwts.parser().setSigningKey(SECRET_KEY.getBytes()).parseClaimsJws(token);
@@ -57,7 +56,6 @@ public class JwtTokenProvider {
         }
     }
 
-    // 토큰 유효성 검증 (refreshToken)
     public boolean validateRefreshToken(String token) {
         try {
             Jwts.parser().setSigningKey(SECRET_KEY.getBytes()).parseClaimsJws(token);

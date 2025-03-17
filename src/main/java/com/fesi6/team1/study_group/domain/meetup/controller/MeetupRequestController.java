@@ -24,7 +24,7 @@ public class MeetupRequestController {
     public ResponseEntity<?> createMeetupRequest(@AuthenticationPrincipal Long userId,
                                                  @PathVariable(name = "meetupId") Long meetupId) {
         meetupRequestService.requestMeetup(meetupId, userId);
-        return ResponseEntity.ok().body(ApiResponse.successWithMessage("Meetup request created successfully"));
+        return ResponseEntity.ok().body(ApiResponse.successWithMessage("모임 참여 성공"));
     }
 
     /**
@@ -37,7 +37,7 @@ public class MeetupRequestController {
                                                       @PathVariable(name = "meetupId") Long meetupId) {
 
         meetupRequestService.leaveMeetup(meetupId, userId);
-        return ResponseEntity.ok(ApiResponse.successWithMessage("Successfully left the meetup"));
+        return ResponseEntity.ok(ApiResponse.successWithMessage("모임 탈퇴 성공"));
     }
 }
 

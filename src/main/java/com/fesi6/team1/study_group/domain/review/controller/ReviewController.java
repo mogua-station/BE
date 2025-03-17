@@ -39,7 +39,9 @@ public class ReviewController {
     }
 
     /**
+     *
      * 리뷰 단건 조회
+     *
      */
     @GetMapping("/{reviewId}")
     public ResponseEntity<ReviewResponseDTO> getReviews(

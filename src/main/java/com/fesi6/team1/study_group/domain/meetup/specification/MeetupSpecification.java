@@ -23,14 +23,14 @@ public class MeetupSpecification {
     public static Specification<Meetup> hasLocation(String location) {
         return (root, query, criteriaBuilder) -> {
             if ("ALL".equals(location)) {
-                return criteriaBuilder.conjunction(); // 모든 값에 대해 true 반환 (조건 무시)
+                return criteriaBuilder.conjunction();
             }
 
             try {
                 MeetupLocation meetupLocation = MeetupLocation.valueOf(location);
-                return criteriaBuilder.equal(root.get("location"), meetupLocation); // 열거형 비교
+                return criteriaBuilder.equal(root.get("location"), meetupLocation);
             } catch (IllegalArgumentException e) {
-                throw new InvalidParameterException("Invalid location value: " + location); // 잘못된 값 처리
+                throw new InvalidParameterException("Invalid location value: " + location);
             }
         };
     }
